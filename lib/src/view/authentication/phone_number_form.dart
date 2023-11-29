@@ -1,20 +1,19 @@
+import 'dart:convert';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:omulimisa_digi_save_v2/database/constants.dart';
 import 'package:omulimisa_digi_save_v2/database/getData.dart';
 import 'package:omulimisa_digi_save_v2/database/getMeetings.dart';
-import 'package:omulimisa_digi_save_v2/database/groupData.dart';
-import 'package:omulimisa_digi_save_v2/database/meetingData.dart';
 import 'package:omulimisa_digi_save_v2/database/positions.dart';
-import 'package:omulimisa_digi_save_v2/database/userData.dart';
-import '/src/view/screens/start_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../database/localStorage.dart';
 import '../widgets/start_card.dart';
 import '../widgets/user_class.dart';
-import 'package:connectivity/connectivity.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '/src/view/screens/start_screen.dart';
 
 class PhoneForm extends StatefulWidget {
   const PhoneForm({Key? key}) : super(key: key);
@@ -88,7 +87,7 @@ class _PhoneFormState extends State<PhoneForm> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content:
-            Text('No internet connection. Please check your network settings.'),
+        Text('No internet connection. Please check your network settings.'),
         duration: Duration(seconds: 5), // You can adjust the duration as needed
       ),
     );
@@ -219,7 +218,7 @@ class _PhoneFormState extends State<PhoneForm> {
                   children: [
                     Padding(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       child: Text(
                         'DigiSave VSLA Mobile App',
                         style: TextStyle(
@@ -288,11 +287,11 @@ class _PhoneFormState extends State<PhoneForm> {
                       inputDecoration: const InputDecoration(
                         enabledBorder: OutlineInputBorder(
                           borderSide:
-                              BorderSide(color: Colors.green, width: 2.0),
+                          BorderSide(color: Colors.green, width: 2.0),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide:
-                              BorderSide(color: Colors.black, width: 2.0),
+                          BorderSide(color: Colors.black, width: 2.0),
                         ),
                       ),
                     ),
@@ -346,21 +345,32 @@ class _PhoneFormState extends State<PhoneForm> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        print('Phone number: $_test');
-                        String uniqueCode = _passwordController.text;
-                        print('Full Typed phone is: $_test');
-                        if (_test != null) {
-                          loginUser(_test!, uniqueCode);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Phone number is required.'),
-                            ),
-                          );
+                      try {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          print('Phone number: $_test');
+                          String uniqueCode = _passwordController.text;
+                          print('Full Typed phone is: $_test');
+                          if (_test != null) {
+                            loginUser(_test!, uniqueCode);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Phone number is required.'),
+                              ),
+                            );
+                          }
                         }
+                      } catch (e) {
+                        print(e);
                       }
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const StartScreen(),
+                        ),
+                      );
+                      return;
                     },
                     style: TextButton.styleFrom(
                         foregroundColor: Colors.black,

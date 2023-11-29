@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen>
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage(
-                "assets/local_people.jpg"), // Replace with your image path
+                "assets/local_group.jpg"),  // Replace with your image path
             fit: BoxFit.cover,
           ),
         ),

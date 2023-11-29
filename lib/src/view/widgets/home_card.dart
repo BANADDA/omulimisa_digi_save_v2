@@ -126,6 +126,7 @@ class _FrostedGlassBoxState extends State<FrostedGlassBox> {
                   alignment: Alignment.center,
                   child: TextButton(
                     onPressed: () {
+
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {

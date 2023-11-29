@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+
 import '/src/view/widgets/start_card.dart';
 
 class AccountsScreen extends StatelessWidget {
@@ -12,7 +13,7 @@ class AccountsScreen extends StatelessWidget {
         child: Stack(
           children: [
             Image.asset(
-              'assets/background.jpeg',
+              'assets/background.jpg',
               height: MediaQuery.of(context).size.height / 2.8,
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.cover,

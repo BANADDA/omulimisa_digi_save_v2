@@ -34,7 +34,7 @@ class _OtpScreenState extends State<OtpScreen> {
       // backgroundColor: Color.transparent, // Set this to transparent
       body: Stack(
         children: [
-          Image.asset('assets/background.jpeg',
+          Image.asset('assets/background.jpg',
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.cover),

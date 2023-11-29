@@ -64,7 +64,7 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   // Future<Uint8List?> getDefaultImage() async {
-  //   const defaultImagePath = 'assets/background.jpeg';
+  //   const defaultImagePath = 'assets/background.jpg';
   //   final defaultImageData = await rootBundle.load(defaultImagePath);
   //   print('Default: ${defaultImageData.buffer.asUint8List()}');
   //   _bytesImage = defaultImageData.buffer.asUint8List();
@@ -79,7 +79,7 @@ class _FirstScreenState extends State<FirstScreen> {
 
       // Check if imageData is null before using the null check operator.
       if (imageData == null) {
-        const defaultImagePath = 'assets/background.jpeg';
+        const defaultImagePath = 'assets/background.jpg';
         final defaultImageData = await rootBundle.load(defaultImagePath);
         print('Default: ${defaultImageData.buffer.asUint8List()}');
         _bytesImage = defaultImageData.buffer.asUint8List();

@@ -64,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Stack(
         children: [
           Image.asset(
-            'assets/background.jpeg',
+            'assets/background.jpg',
             fit: BoxFit.cover,
             height: double.infinity,
             width: double.infinity,

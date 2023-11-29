@@ -1,14 +1,14 @@
 class ImageData {
   static final List<String> imageUrls = [
-    'assets/community2.gif',
-    'assets/community1.gif',
-    'assets/community3.gif',
-    'assets/community4.gif',
-    'assets/community5.gif',
-    'assets/community6.gif',
-    'assets/community7.gif',
-    'assets/community8.gif',
-    'assets/community10.gif',
-    'assets/community12.gif',
+    'assets/community2.jpg',
+    'assets/community1.jpg',
+    'assets/community3.jpg',
+    'assets/community4.jpg',
+    'assets/community5.jpg',
+    'assets/community6.jpg',
+    'assets/community7.jpg',
+    'assets/community8.jpg',
+    'assets/community10.jpg',
+    'assets/community12.jpg',
   ];
 }

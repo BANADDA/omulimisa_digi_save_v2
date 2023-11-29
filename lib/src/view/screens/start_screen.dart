@@ -128,7 +128,7 @@ class _StartScreenState extends State<StartScreen> {
                         Stack(
                           children: [
                             Image.asset(
-                              'assets/background.jpeg',
+                              'assets/background.jpg',
                               height: MediaQuery.of(context).size.height / 2.5,
                               width: MediaQuery.of(context).size.width,
                               fit: BoxFit.cover,
@@ -906,7 +906,7 @@ class _StartScreenState extends State<StartScreen> {
                   Stack(
                     children: [
                       Image.asset(
-                        'assets/background.jpeg',
+                        'assets/background.jpg',
                         height: MediaQuery.of(context).size.height / 2.5,
                         width: MediaQuery.of(context).size.width,
                         fit: BoxFit.cover,
