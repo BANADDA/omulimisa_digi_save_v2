@@ -1,4 +1,4 @@
-package digisave.ug
+package ug.digisave
 
 import io.flutter.embedding.android.FlutterActivity
 
