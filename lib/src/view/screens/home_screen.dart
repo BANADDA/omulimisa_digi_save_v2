@@ -58,7 +58,7 @@ class _HomescreenState extends State<Homescreen> {
                 children: [
                   SizedBox(height: 70),
                   Text(
-                    'DigiSave VSLA App',
+                    'DigiSave VSLA',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

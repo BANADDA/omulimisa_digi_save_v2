@@ -1,19 +1,20 @@
-import 'dart:convert';
-
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:omulimisa_digi_save_v2/database/constants.dart';
 import 'package:omulimisa_digi_save_v2/database/getData.dart';
 import 'package:omulimisa_digi_save_v2/database/getMeetings.dart';
+import 'package:omulimisa_digi_save_v2/database/groupData.dart';
+import 'package:omulimisa_digi_save_v2/database/meetingData.dart';
 import 'package:omulimisa_digi_save_v2/database/positions.dart';
+import 'package:omulimisa_digi_save_v2/database/userData.dart';
+import '/src/view/screens/start_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../database/localStorage.dart';
 import '../widgets/start_card.dart';
 import '../widgets/user_class.dart';
-import '/src/view/screens/start_screen.dart';
+import 'package:connectivity/connectivity.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class PhoneForm extends StatefulWidget {
   const PhoneForm({Key? key}) : super(key: key);
@@ -87,7 +88,7 @@ class _PhoneFormState extends State<PhoneForm> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content:
-        Text('No internet connection. Please check your network settings.'),
+            Text('No internet connection. Please check your network settings.'),
         duration: Duration(seconds: 5), // You can adjust the duration as needed
       ),
     );
@@ -157,8 +158,14 @@ class _PhoneFormState extends State<PhoneForm> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Welcome, ${userData['fname']} ${userData['lname']}'),
-        ),
+            content: Center(
+                child: Text(
+                    'Welcome, ${userData['fname']} ${userData['lname']}',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white))),
+            backgroundColor: Colors.green),
       );
 
       // print('User ID: ${userData['id']}');
@@ -192,160 +199,189 @@ class _PhoneFormState extends State<PhoneForm> {
         ),
       );
     } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Center(
+            child: Text(
+                'Authentication failed please check your phone number and unique code.',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 126, 124, 124))),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
+      );
       // Handle errors or display appropriate messages
       print('Failed to log in. Status code: ${response.statusCode}');
       print('Response body: ${response.body}');
     }
   }
 
+  bool _isObscure = true; // To manage the visibility of the password
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        children: [
-          const Align(
-            alignment: Alignment.center,
-            child: StartCard(
-              theWidth: 500.0,
-              theHeight: 200.0,
-              borderRadius: 0,
-              theChild: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      child: Text(
-                        'DigiSave VSLA Mobile App',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            const Align(
+              alignment: Alignment.center,
+              child: StartCard(
+                theWidth: 500.0,
+                theHeight: 200.0,
+                borderRadius: 0,
+                theChild: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        child: Text(
+                          'DigiSave VSLA',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'Enter your phone number and pin to login',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color.fromARGB(255, 0, 20, 1),
-                          fontWeight: FontWeight.w500,
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'Enter your phone number and pin to login',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(255, 0, 20, 1),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  elevation: 4,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Padding(
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: InternationalPhoneNumberInput(
+                        textStyle: const TextStyle(
+                          color: Colors.black,
+                        ),
+                        onInputChanged: (PhoneNumber number) {
+                          setState(() {
+                            _phone = number.phoneNumber;
+                            _country = number.isoCode!;
+                          });
+                        },
+                        onSaved: (PhoneNumber? number) {
+                          if (number != null) {
+                            print('Phone Number Saved: ${number.phoneNumber}');
+                            _test = number.phoneNumber;
+                          }
+                        },
+                        selectorConfig: const SelectorConfig(
+                          selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                        ),
+                        ignoreBlank: false,
+                        autoValidateMode: AutovalidateMode.disabled,
+                        selectorTextStyle: const TextStyle(color: Colors.black),
+                        initialValue: _number,
+                        textFieldController: controller,
+                        formatInput: true,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          signed: true,
+                          decimal: true,
+                        ),
+                        inputDecoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.green, width: 2.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.black, width: 2.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Padding(
                     padding: const EdgeInsets.all(16),
-                    child: InternationalPhoneNumberInput(
-                      textStyle: const TextStyle(
-                        color: Colors.black,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      onInputChanged: (PhoneNumber number) {
-                        setState(() {
-                          _phone = number.phoneNumber;
-                          _country = number.isoCode!;
-                        });
-                      },
-                      onSaved: (PhoneNumber? number) {
-                        if (number != null) {
-                          print('Phone Number Saved: ${number.phoneNumber}');
-                          _test = number.phoneNumber;
-                        }
-                      },
-                      selectorConfig: const SelectorConfig(
-                        selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                      ),
-                      ignoreBlank: false,
-                      autoValidateMode: AutovalidateMode.disabled,
-                      selectorTextStyle: const TextStyle(color: Colors.black),
-                      initialValue: _number,
-                      textFieldController: controller,
-                      formatInput: true,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        signed: true,
-                        decimal: true,
-                      ),
-                      inputDecoration: const InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                          BorderSide(color: Colors.green, width: 2.0),
+                      child: TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: 'Enter Pin',
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelStyle: TextStyle(
+                            color: Color.fromARGB(255, 82, 80, 80),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isObscure = !_isObscure;
+                              });
+                            },
+                            child: Icon(
+                              _isObscure
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                          BorderSide(color: Colors.black, width: 2.0),
-                        ),
+                        obscureText: _isObscure,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your pin';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: TextFormField(
-                      controller: _passwordController,
-                      decoration: const InputDecoration(
-                        labelText: 'Enter Pin',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        labelStyle: TextStyle(
-                          color: Color.fromARGB(255, 82, 80, 80),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your pin';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      try {
+                  const SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
                           print('Phone number: $_test');
@@ -361,39 +397,30 @@ class _PhoneFormState extends State<PhoneForm> {
                             );
                           }
                         }
-                      } catch (e) {
-                        print(e);
-                      }
-
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const StartScreen(),
+                      },
+                      style: TextButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          backgroundColor: const Color.fromARGB(255, 1, 67, 3),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0))),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 12.0),
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.0,
+                              color: Colors.white),
                         ),
-                      );
-                      return;
-                    },
-                    style: TextButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        backgroundColor: const Color.fromARGB(255, 1, 67, 3),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0))),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 12.0),
-                      child: Text(
-                        'Login',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.0,
-                            color: Colors.white),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

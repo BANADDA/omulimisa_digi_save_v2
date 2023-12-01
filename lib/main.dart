@@ -29,6 +29,7 @@ import 'package:http/http.dart' as http;
 Future<User?> loadUserData() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
+  print('User data: $token');
   final userFirstName = prefs.getString('userFirstName');
   final userLastName = prefs.getString('userLastName');
 
@@ -109,7 +110,7 @@ class MyApp extends StatelessWidget {
     return WillPopScope(
       child: MaterialApp(
         // debugShowCheckedModeBanner: false,
-        title: 'DigiSave Mobile App',
+        title: 'DigiSave VSLA',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
               seedColor: const Color.fromARGB(255, 103, 255, 108)),
