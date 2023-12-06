@@ -1,19 +1,15 @@
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:omulimisa_digi_save_v2/database/positions.dart';
-import 'package:omulimisa_digi_save_v2/src/view/accounts/manage_groups/group_screen.dart';
 import 'package:omulimisa_digi_save_v2/src/view/authentication/locationModel.dart';
-import 'package:omulimisa_digi_save_v2/src/view/authentication/signup_screen.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:async';
 
 import '../src/view/accounts/groups/forms/ElectOfficers/ElectOfficersScreen.dart';
 import '../src/view/accounts/manage_groups/meetings/start_meeting/Loans/PaymentInfo.dart';
 import '../src/view/accounts/manage_groups/meetings/start_meeting/Loans/loan_applications.dart';
 import '../src/view/models/group_model.dart';
-import '../src/view/widgets/user_class.dart';
 import 'location.dart';
 
 class DatabaseHelper {
@@ -752,19 +748,18 @@ CREATE TABLE loans (
     ''', [groupId]);
   }
 
-
   Future<List<Map<String, dynamic>>?> getConstitutionData() async {
-           Database db = await database;
+    Database db = await database;
 
-
-    final List<Map<String, dynamic>> result = await db.query('constitution_table');
+    final List<Map<String, dynamic>> result =
+        await db.query('constitution_table');
 
     return result.isNotEmpty ? result : null;
   }
 
-   Future<Map<String, dynamic>?> getShareValuesForGroupForm(String groupFormId) async {
-        Database db = await database;
-
+  Future<Map<String, dynamic>?> getShareValuesForGroupForm(
+      String groupFormId) async {
+    Database db = await database;
 
     final List<Map<String, dynamic>> result = await db.rawQuery('''
       SELECT 
@@ -786,9 +781,6 @@ CREATE TABLE loans (
       return null;
     }
   }
-
-
-
 
   // Future<List<Map<String, dynamic>>> getGroupMembersAndPositions(
   //     int groupId) async {
@@ -907,7 +899,8 @@ CREATE TABLE loans (
       // Database initialization code, open the database here
     }
 
-    final List<Map<String, dynamic>> result = await _database!.query('constitution_table',
+    final List<Map<String, dynamic>> result = await _database!.query(
+        'constitution_table',
         columns: ['maxSharesPerMember', 'minSharesRequired'],
         where: 'group_id = ?',
         whereArgs: [groupId]);
@@ -923,7 +916,8 @@ CREATE TABLE loans (
   }
 
 // Shareout
-  Future<String?> getUserIdFromGroupMember(Database db, String groupMemberId) async {
+  Future<String?> getUserIdFromGroupMember(
+      Database db, String groupMemberId) async {
     final List<Map<String, dynamic>> result = await db.rawQuery(
       'SELECT user_id FROM group_members WHERE id = ?',
       [groupMemberId],
@@ -973,7 +967,8 @@ CREATE TABLE loans (
   }
 
   // Interest
-  Future<double> getTotalLoanDisbursement(String groupId, String cycleId) async {
+  Future<double> getTotalLoanDisbursement(
+      String groupId, String cycleId) async {
     final Database db = await database;
 
     const query = '''
@@ -1294,24 +1289,23 @@ CREATE TABLE loans (
   }
 
   Future<String> insertFundsIntoCycleMeeting(
-  String groupId,
-  int totalLoanFund,
-  int totalSocialFund,
-) async {
-  final uuid = Uuid();
-  final idx = uuid.v4();
-  final Map<String, dynamic> data = {
-    'id': idx,
-    'group_id': groupId,
-    'totalLoanFund': totalLoanFund,
-    'totalSocialFund': totalSocialFund,
-  };
-  final Database db = await database;
+    String groupId,
+    int totalLoanFund,
+    int totalSocialFund,
+  ) async {
+    final uuid = Uuid();
+    final idx = uuid.v4();
+    final Map<String, dynamic> data = {
+      'id': idx,
+      'group_id': groupId,
+      'totalLoanFund': totalLoanFund,
+      'totalSocialFund': totalSocialFund,
+    };
+    final Database db = await database;
 
-  final rowId = await db.insert('cyclemeeting', data).toString();
-  return rowId;
-}
-
+    final rowId = await db.insert('cyclemeeting', data).toString();
+    return rowId;
+  }
 
   // Payment Info
   // Loan Payments
@@ -1384,7 +1378,8 @@ CREATE TABLE loans (
   }
 
   // Get payment details
-  Future<List<Map<String, dynamic>>> getAllPaymentForGroup(String groupId) async {
+  Future<List<Map<String, dynamic>>> getAllPaymentForGroup(
+      String groupId) async {
     final db = await database;
 
     // Get all the loans for the given groupId.
@@ -1743,7 +1738,8 @@ CREATE TABLE loans (
   }
 
   // Method to get recent loan activity data for a specific group, meeting, and cycle
-  Future<List<Map<String, dynamic>>> getRecentLoanActivity(String groupId) async {
+  Future<List<Map<String, dynamic>>> getRecentLoanActivity(
+      String groupId) async {
     final Database db = await instance.database;
     final List<Map<String, dynamic>> result = await db.query(
       'loans',
@@ -1754,8 +1750,8 @@ CREATE TABLE loans (
     return result;
   }
 
-  Future<void> updateSharesAndSavingsForMemberInGroup(String groupId, String memberId,
-      int updatedShares, double updatedSavings) async {
+  Future<void> updateSharesAndSavingsForMemberInGroup(String groupId,
+      String memberId, int updatedShares, double updatedSavings) async {
     // Get the database instance
     final db = await DatabaseHelper.instance.database;
 
@@ -1892,7 +1888,8 @@ CREATE TABLE loans (
     final db = await database;
     final uuid = Uuid();
     final id = uuid.v4();
-    disbursement['id'] = id;await db.insert('loan_disbursement', disbursement);
+    disbursement['id'] = id;
+    await db.insert('loan_disbursement', disbursement);
     return id;
   }
 
@@ -1901,7 +1898,8 @@ CREATE TABLE loans (
     final db = await database;
     final uuid = Uuid();
     final id = uuid.v4();
-    payment['id'] = id;await db.insert('loan_payments', payment);
+    payment['id'] = id;
+    await db.insert('loan_payments', payment);
     return id;
   }
 
@@ -2046,11 +2044,13 @@ CREATE TABLE loans (
   }
 
   // Social
-  Future<String> insertSocial(String meetingId, String sharePurchasesJson) async {
+  Future<String> insertSocial(
+      String meetingId, String sharePurchasesJson) async {
     final db = await database;
 
     final uuid = Uuid();
-    final id = uuid.v4(); await db.insert('social', {
+    final id = uuid.v4();
+    await db.insert('social', {
       'id': id,
       'meetingId': meetingId,
       'socialFund': sharePurchasesJson,
@@ -2060,16 +2060,15 @@ CREATE TABLE loans (
 
   // Savings
   Future<String> insertSavingsAccount(Map<String, dynamic> savingsData) async {
-  final db = await database;
-  final uuid = Uuid();
-  final id = uuid.v4();
-  savingsData['id'] = id;
-  
-  await db.insert('savings_account', savingsData);
+    final db = await database;
+    final uuid = Uuid();
+    final id = uuid.v4();
+    savingsData['id'] = id;
 
-  return id; // Return the generated ID as a String
-}
+    await db.insert('savings_account', savingsData);
 
+    return id; // Return the generated ID as a String
+  }
 
   // Reversed_transactions
   Future<String> inserReversedTransactions(
@@ -2077,19 +2076,20 @@ CREATE TABLE loans (
     final db = await database;
     final uuid = Uuid();
     final id = uuid.v4();
-    reversedData['id'] = id;await db.insert('reversed_transactions', reversedData);
+    reversedData['id'] = id;
+    await db.insert('reversed_transactions', reversedData);
     return id;
   }
 
   Future<double> getTotalGroupSavings(String groupId) async {
-  final db = await database;
-  final result = await db.rawQuery('''
+    final db = await database;
+    final result = await db.rawQuery('''
     SELECT SUM(amount) AS total_savings
     FROM savings_account
     WHERE group_id = '$groupId'
   ''');
-  return (result.isNotEmpty) ? result.first['total_savings'] as double : 0.0;
-}
+    return (result.isNotEmpty) ? result.first['total_savings'] as double : 0.0;
+  }
 
   // Registration fees
   Future<double?> getRegistrationFee(String constitutionId) async {
@@ -2108,25 +2108,26 @@ CREATE TABLE loans (
     }
   }
 
- Future<List<String>> getUserIdsForGroupProfile(String groupProfileId) async {
-  final db = await database;
-  List<Map<String, dynamic>> results = await db.query(
-    'group_members',
-    where: 'group_id = ?',
-    whereArgs: [groupProfileId],
-    columns: ['user_id'],
-  );
+  Future<List<String>> getUserIdsForGroupProfile(String groupProfileId) async {
+    final db = await database;
+    List<Map<String, dynamic>> results = await db.query(
+      'group_members',
+      where: 'group_id = ?',
+      whereArgs: [groupProfileId],
+      columns: ['user_id'],
+    );
 
-  List<String> userIDs = results.map((result) => result['user_id'].toString()).toList();
-  return userIDs;
-}
-
+    List<String> userIDs =
+        results.map((result) => result['user_id'].toString()).toList();
+    return userIDs;
+  }
 
   Future<String> insertGroupFee(Map<String, dynamic> groupFee) async {
     final db = await database;
     final uuid = Uuid();
     final id = uuid.v4();
-    groupFee['id'] = id;await db.insert('group_fees', groupFee);
+    groupFee['id'] = id;
+    await db.insert('group_fees', groupFee);
     return id;
   }
 
@@ -2183,35 +2184,33 @@ CREATE TABLE loans (
   }
 
   // Image
- Future<Map<String, String>> getAllMemberIdsAndUserIds() async {
-  final db = await database;
-  final result = await db.query('group_members');
-  final memberIdsAndUserIds = <String, String>{};
-  
-  for (final row in result) {
-    final String memberId = row['id'].toString();
-    final String userId = row['user_id'].toString();
-    memberIdsAndUserIds[memberId] = userId;
-  }
-  
-  return memberIdsAndUserIds;
-}
+  Future<Map<String, String>> getAllMemberIdsAndUserIds() async {
+    final db = await database;
+    final result = await db.query('group_members');
+    final memberIdsAndUserIds = <String, String>{};
 
+    for (final row in result) {
+      final String memberId = row['id'].toString();
+      final String userId = row['user_id'].toString();
+      memberIdsAndUserIds[memberId] = userId;
+    }
+
+    return memberIdsAndUserIds;
+  }
 
   Future<String?> getUserIdForId(String memberId) async {
-  final db = await database;
-  final result = await db.query(
-    'group_members',
-    columns: ['user_id'],
-    where: 'id = ?',
-    whereArgs: [memberId],
-  );
-  if (result.isNotEmpty) {
-    return result.first['user_id'] as String?;
+    final db = await database;
+    final result = await db.query(
+      'group_members',
+      columns: ['user_id'],
+      where: 'id = ?',
+      whereArgs: [memberId],
+    );
+    if (result.isNotEmpty) {
+      return result.first['user_id'] as String?;
+    }
+    return null;
   }
-  return null;
-}
-
 
   // Future<int?> getUserIdForId(int id) async {
   //   final db = await database;
@@ -2230,8 +2229,14 @@ CREATE TABLE loans (
   // }
 
   // Fines
-  Future<void> insertFine(String memberId, int amount, String reason,
-      String groupId, String cycleId, String meetingId, String savingsAccount) async {
+  Future<void> insertFine(
+      String memberId,
+      int amount,
+      String reason,
+      String groupId,
+      String cycleId,
+      String meetingId,
+      String savingsAccount) async {
     final db = await database;
 
     final uuid = Uuid();
@@ -2320,25 +2325,21 @@ CREATE TABLE loans (
   // }
 
   //Return positions
- Future<String?> getGroupIdFromFormId(String formId) async {
-  final db = await database;
-  final result = await db.query(
-    'group_form',
-    where: 'id = ?',
-    whereArgs: [formId],
-    columns: ['group_id'],
-  );
+  Future<String?> getGroupIdFromFormId(String formId) async {
+    final db = await database;
+    final result = await db.query(
+      'group_form',
+      where: 'id = ?',
+      whereArgs: [formId],
+      columns: ['group_id'],
+    );
 
-  if (result.isNotEmpty) {
-    return result.first['group_id'].toString();
+    if (result.isNotEmpty) {
+      return result.first['group_id'].toString();
+    }
+
+    return null;
   }
-
-  return null;
-}
-
-
-
-
 
   Future<List<Map<String, dynamic>>?> getMemberAndPositionNames(
       String groupId) async {
@@ -2360,8 +2361,8 @@ CREATE TABLE loans (
     final db = await database;
     final uuid = Uuid();
     final id = uuid.v4();
-    data['id'] = id; 
-   final cycle = await db.insert('ActiveCycleMeeting', data);
+    data['id'] = id;
+    final cycle = await db.insert('ActiveCycleMeeting', data);
     return id;
   }
 
@@ -2394,27 +2395,26 @@ CREATE TABLE loans (
   }
 
   // Update normal meetings
-Future<String?> updateMeeting(
-  String id,
-  Map<String, dynamic> updatedMeetingData,
-) async {
-  final db = await database;
+  Future<String?> updateMeeting(
+    String id,
+    Map<String, dynamic> updatedMeetingData,
+  ) async {
+    final db = await database;
 
-  try {
-    String rowsUpdated = (await db.update(
-      'meeting',
-      updatedMeetingData,
-      where: 'id = ?',
-      whereArgs: [id],
-    )) as String;
+    try {
+      String rowsUpdated = (await db.update(
+        'meeting',
+        updatedMeetingData,
+        where: 'id = ?',
+        whereArgs: [id],
+      )) as String;
 
-    return rowsUpdated;
-  } catch (e) {
-    print('Error updating meeting: $e');
-    return null; // Return -1 or any other indicator to signify an error.
+      return rowsUpdated;
+    } catch (e) {
+      print('Error updating meeting: $e');
+      return null; // Return -1 or any other indicator to signify an error.
+    }
   }
-}
-
 
   Future<List<Map<String, dynamic>>> getGroupMembersForGroup(
       String groupId) async {
@@ -2446,25 +2446,25 @@ Future<String?> updateMeeting(
     print('Invoked');
     final db = await database;
     try {
-      
-    final List<Map<String, dynamic>> results = await db.rawQuery('''
+      final List<Map<String, dynamic>> results = await db.rawQuery('''
     SELECT constitution_table.maxSharesPerMember AS maxSharesPerMember, constitution_table.minSharesRequired AS minSharesRequired
     FROM group_form
     INNER JOIN constitution_table ON group_form.constitution_id = constitution_table.id
     WHERE group_form.id = ?
   ''', [groupId]);
 
-  print('Results: $results');
+      print('Results: $results');
 
-    if (results.isEmpty) {// Return a Future with a value of null     
-     return Future.value({}); 
-    } else {
-      return Future.value(results.first); // Return a Future with the result
-    }
+      if (results.isEmpty) {
+        // Return a Future with a value of null
+        return Future.value({});
+      } else {
+        return Future.value(results.first); // Return a Future with the result
+      }
     } catch (e) {
       print('We got error fetching share value: $e');
     }
-      return Future.value({}); 
+    return Future.value({});
   }
 
   // Obatianing specific user shares
@@ -2526,6 +2526,7 @@ Future<String?> updateMeeting(
       return Future.value(results.first); // Return a Future with the result
     }
   }
+
   // Future<void> deleteCycleDataForGroup(int groupId, int cycleMeetingID) async {
   //   final db = await database;
   //   await db.execute(
@@ -2535,7 +2536,8 @@ Future<String?> updateMeeting(
   // }
 
   // Function to remove active cycle meeting ID and effectively empty the table
-  Future<int> removeActiveCycleMeeting(String groupId, String cycleMeetingID) async {
+  Future<int> removeActiveCycleMeeting(
+      String groupId, String cycleMeetingID) async {
     final db = await database;
     return await db.delete(
       'ActiveCycleMeeting',
@@ -2568,6 +2570,7 @@ Future<String?> updateMeeting(
     shareData['id'] = id;
     await db.insert('shares', shareData);
   }
+
   // Future<int> insertShare(int meetingId, String sharePurchasesJson) async {
   //   final db = await database;
   //   return await db.insert('shares', {
@@ -2584,7 +2587,8 @@ Future<String?> updateMeeting(
   // start_date TEXT,
   // end_date TEXT,
 
-  Future<List<Map<String, dynamic>>> getMemberActiveLoans(String groupId) async {
+  Future<List<Map<String, dynamic>>> getMemberActiveLoans(
+      String groupId) async {
     final Database db = await database;
     try {
       List<Map<String, dynamic>> loans = await db.rawQuery('''
@@ -3196,7 +3200,8 @@ Future<String?> updateMeeting(
   //   }
   // }
 
-  Future<List<Map<String, dynamic>>> getMemberIdsForGroup(String groupId) async {
+  Future<List<Map<String, dynamic>>> getMemberIdsForGroup(
+      String groupId) async {
     final Database db = await database;
 
     final memberIds = await db.rawQuery('''
@@ -3273,7 +3278,6 @@ Future<String?> updateMeeting(
 //   return groupNames;
 // }
 
-
   Future<List<Map<String, dynamic>>> getLinkedDataForUser(
       List<String> groupIds) async {
     final Database db = await database;
@@ -3333,38 +3337,37 @@ Future<String?> updateMeeting(
   // }
 
   Future<String?> insertLinkedData(
-  String groupId,
-  String loggedInUserId,
-  String? groupProfileId,
-  String? constitutionId,
-  // String? cycleScheduleId,
-  String? groupMemberId,
-  String? assignedPositionId,
-) async {
-  final Database db = await database;
+    String groupId,
+    String loggedInUserId,
+    String? groupProfileId,
+    String? constitutionId,
+    // String? cycleScheduleId,
+    String? groupMemberId,
+    String? assignedPositionId,
+  ) async {
+    final Database db = await database;
 
-  final uuid = Uuid();
-  final id = uuid.v4();
-  try {
-    int insertedRowId = await db.insert('group_form', {
-      'id': id,
-      'group_id': groupId,
-      'logged_in_user_id': loggedInUserId,
-      'group_profile_id': groupProfileId,
-      'constitution_id': constitutionId,
-      // 'cycle_schedule_id': cycleScheduleId,
-      'group_member_id': groupMemberId,
-      'assigned_position_id': assignedPositionId,
-    });
+    final uuid = Uuid();
+    final id = uuid.v4();
+    try {
+      int insertedRowId = await db.insert('group_form', {
+        'id': id,
+        'group_id': groupId,
+        'logged_in_user_id': loggedInUserId,
+        'group_profile_id': groupProfileId,
+        'constitution_id': constitutionId,
+        // 'cycle_schedule_id': cycleScheduleId,
+        'group_member_id': groupMemberId,
+        'assigned_position_id': assignedPositionId,
+      });
 
-    // Convert the insertedRowId (int) to a String before returning
-    return insertedRowId.toString();
-  } catch (e) {
-    print('Error inserting linked data: $e');
-    return null;
+      // Convert the insertedRowId (int) to a String before returning
+      return insertedRowId.toString();
+    } catch (e) {
+      print('Error inserting linked data: $e');
+      return null;
+    }
   }
-}
-
 
   Future<String?> getGroupProfileId(String groupId) async {
     final Database db = await database;
@@ -3778,16 +3781,15 @@ Future<String?> updateMeeting(
 
   // Insert a meeting into the 'meeting' table
   Future<String> insertMeeting(Map<String, dynamic> meeting) async {
-  final Database db = await database;
-  final uuid = Uuid();
-  final id = uuid.v4();
-  meeting['id'] = id;
-  await db.insert('meeting', meeting);
+    final Database db = await database;
+    final uuid = Uuid();
+    final id = uuid.v4();
+    meeting['id'] = id;
+    await db.insert('meeting', meeting);
 
-  // Return the generated ID directly as a String
-  return id;
-}
-
+    // Return the generated ID directly as a String
+    return id;
+  }
 
   // Retrieve all meetings from the 'meeting' table
   Future<List<Map<String, dynamic>>> getAllMeetings() async {
@@ -3796,17 +3798,17 @@ Future<String?> updateMeeting(
   }
 
   // Insert a meeting into the 'meeting' table
-  Future<String> insertCycleStartMeeting(Map<String, dynamic> cyclemeeting) async {
-  final Database db = await database;
-  final uuid = Uuid();
-  final id = uuid.v4();
-  cyclemeeting['id'] = id;
-  await db.insert('cyclemeeting', cyclemeeting);
+  Future<String> insertCycleStartMeeting(
+      Map<String, dynamic> cyclemeeting) async {
+    final Database db = await database;
+    final uuid = Uuid();
+    final id = uuid.v4();
+    cyclemeeting['id'] = id;
+    await db.insert('cyclemeeting', cyclemeeting);
 
-  // Convert the generated ID to a String before returning
-  return id.toString();
-}
-
+    // Convert the generated ID to a String before returning
+    return id.toString();
+  }
 
   // Retrieve all meetings from the 'meeting' table
   Future<List<Map<String, dynamic>>> getAllCycleStartMeetings() async {
@@ -3815,21 +3817,20 @@ Future<String?> updateMeeting(
   }
 
   // Insert a group profile into the 'group_profile' table
- Future<String?> insertGroupProfile(Map<String, dynamic> groupProfile) async {
-  final Database db = await database;
-  final uuid = Uuid();
-  final id = uuid.v4();
-  groupProfile['id'] = id;
-  try {
-    await db.insert('group_profile', groupProfile);
-    print('Success group profile: $id');
-    return id; // Return the generated UUID as a String
-  } catch (e) {
-    print('Error inserting group profile: $e');
-    return null;
+  Future<String?> insertGroupProfile(Map<String, dynamic> groupProfile) async {
+    final Database db = await database;
+    final uuid = Uuid();
+    final id = uuid.v4();
+    groupProfile['id'] = id;
+    try {
+      await db.insert('group_profile', groupProfile);
+      print('Success group profile: $id');
+      return id; // Return the generated UUID as a String
+    } catch (e) {
+      print('Error inserting group profile: $e');
+      return null;
+    }
   }
-}
-
 
   // Function to retrieve group name by group ID
   Future<String?> getGroupNameByGroupId(String groupId) async {
@@ -3888,22 +3889,21 @@ Future<String?> updateMeeting(
   }
 
   Future<String> addMemberToGroup(String userId, String groupId) async {
-  final Database db = await database;
+    final Database db = await database;
 
-  final uuid = Uuid();
-  final id = uuid.v4();
-  final Map<String, dynamic> memberData = {
-    'id': id,
-    'user_id': userId,
-    'group_id': groupId,
-  };
+    final uuid = Uuid();
+    final id = uuid.v4();
+    final Map<String, dynamic> memberData = {
+      'id': id,
+      'user_id': userId,
+      'group_id': groupId,
+    };
 
-  await db.insert('group_members', memberData);
+    await db.insert('group_members', memberData);
 
-  // Return the generated ID as a String
-  return id;
-}
-
+    // Return the generated ID as a String
+    return id;
+  }
 
   Future<List<Map<String, dynamic>>> retrieveGroupMembers() async {
     final Database db = await database;

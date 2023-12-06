@@ -1,22 +1,24 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
-import 'dart:convert';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:country_list_pick/country_list_pick.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-import 'package:http/http.dart' as http;
 import 'package:omulimisa_digi_save_v2/database/constants.dart';
 import 'package:omulimisa_digi_save_v2/src/view/authentication/locationModel.dart';
 import 'package:sqflite/sqflite.dart';
+
 import '../../../database/localStorage.dart';
 import 'login_screen.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:image/image.dart' as img;
 
 class SignUpSCreen extends StatefulWidget {
   const SignUpSCreen({super.key});
@@ -30,6 +32,7 @@ class _SignUpSCreenState extends State<SignUpSCreen> {
   final lnameController = TextEditingController();
   final emailController = TextEditingController();
   final controller = TextEditingController();
+
   // New controllers
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -628,13 +631,14 @@ class _SignUpSCreenState extends State<SignUpSCreen> {
                                 style: const TextStyle(color: Colors.black),
                                 controller: emailController,
                                 decoration: const InputDecoration(
-                                  labelText:
-                                      'Email', // Adding a label for the input field
+                                  labelText: 'Email',
+                                  // Adding a label for the input field
                                   labelStyle: TextStyle(
                                     fontSize: 14,
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
-                                  ), // Customizing label color
+                                  ),
+                                  // Customizing label color
                                   hintText: 'Enter your email',
                                   hintStyle: TextStyle(
                                       color: Colors.black, fontSize: 16),
@@ -1073,8 +1077,8 @@ class _SignUpSCreenState extends State<SignUpSCreen> {
                               TextFormField(
                                 style: const TextStyle(color: Colors.black),
                                 controller: _dependentsController,
-                                keyboardType: TextInputType
-                                    .number, // Set the keyboard type to number
+                                keyboardType: TextInputType.number,
+                                // Set the keyboard type to number
                                 decoration: const InputDecoration(
                                   hintText: 'Enter the number of dependents',
                                   hintStyle: TextStyle(
