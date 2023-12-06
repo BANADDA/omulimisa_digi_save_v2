@@ -4,7 +4,7 @@ class CustomCard extends StatelessWidget {
   final String title;
   final List<Map<String, String>> items;
   final Function onTap;
-  final int groupId;
+  final String groupId;
   final String groupName;
 
   const CustomCard({super.key, 

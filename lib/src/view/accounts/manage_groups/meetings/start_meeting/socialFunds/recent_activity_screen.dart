@@ -4,9 +4,9 @@ import '../../../../../../../database/localStorage.dart';
 import 'social_editing_screen.dart';
 
 class SocialRecentActivityScreen extends StatefulWidget {
-  final int groupId;
-  final int cycleId;
-  final int meetingId;
+  final String groupId;
+  final String cycleId;
+  final String meetingId;
   const SocialRecentActivityScreen({super.key, 
     required this.groupId,
     required this.cycleId,
@@ -28,7 +28,7 @@ class _SocialRecentActivityScreenState
   }
 
   // Fetch recent social activity data from the database for a specific group, meeting, and cycle
-  void fetchRecentActivityData(int groupId, int meetingId, int cycleId) async {
+  void fetchRecentActivityData(String groupId, String meetingId, String cycleId) async {
     try {
       final DatabaseHelper dbHelper = DatabaseHelper.instance;
       final List<Map<String, dynamic>> activityData =

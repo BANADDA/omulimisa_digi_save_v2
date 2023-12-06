@@ -1,7 +1,7 @@
 class PaymentInfo {
-  final int groupId;
-  final int loanId;
-  final int memberID;
+  final String groupId;
+  final String loanId;
+  final String memberID;
   final double amount;
   final DateTime paymentDate;
   double remainingBalance; // Add this property

@@ -5,7 +5,7 @@ import 'LoanContainerWidget.dart';
 import 'loan_class.dart';
 
 class LoanStatus extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
   final String? groupName;
   final List<Loan>? loans;
   const LoanStatus({super.key, this.groupId, this.groupName, this.loans});

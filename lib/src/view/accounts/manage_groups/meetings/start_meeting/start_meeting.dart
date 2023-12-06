@@ -33,8 +33,8 @@ class LoanRequest {
 }
 
 class StartMeeting extends StatefulWidget {
-  final int groupId;
-  final int meetingId;
+  final String groupId;
+  final String meetingId;
   final String? groupName;
   const StartMeeting({
     super.key,
@@ -75,11 +75,11 @@ class _StartMeetingState extends State<StartMeeting> {
   List<Map<String, dynamic>> sharePurchasesList = [];
   double totalGroupSavings = 0;
 
-  int cycleId = 0;
+  String cycleId = '';
 
   // Create a new async function to retrieve activeCycleMeetingID
   void getCycleMeetingID() async {
-    int? activeCycleMeetingID =
+    String? activeCycleMeetingID =
         await DatabaseHelper.instance.getCycleIdForGroup(widget.groupId);
     if (activeCycleMeetingID != null) {
       print('Active Cycle Meeting ID: $activeCycleMeetingID');
@@ -98,6 +98,7 @@ class _StartMeetingState extends State<StartMeeting> {
     meetingReviewsInput;
     meetingRemarksInput;
     getCycleMeetingID();
+    fetchDataFromConstitutionTable();
     fetchShareData(widget.groupId);
     saveGroupInitialData();
     fetchGroupInitialData();
@@ -685,7 +686,7 @@ class _StartMeetingState extends State<StartMeeting> {
 
   List<Map<String, dynamic>> recentActivity = [];
 
-  Future<void> checkAndNavigateToMeetingScreen(int groupId) async {
+  Future<void> checkAndNavigateToMeetingScreen(String groupId) async {
     final meetingCount =
         await DatabaseHelper.instance.countMeetingsForGroup(groupId, cycleId);
 
@@ -707,7 +708,7 @@ class _StartMeetingState extends State<StartMeeting> {
 
   int meetingNo = 0;
 
-  Future<void> checkMeetingCount(int groupId, int cycleId) async {
+  Future<void> checkMeetingCount(String groupId, String cycleId) async {
     final meetingCount =
         await DatabaseHelper.instance.countMeetingsForGroup(groupId, cycleId);
     meetingNo = meetingCount;
@@ -732,7 +733,7 @@ class _StartMeetingState extends State<StartMeeting> {
     }
   }
 
-  Future<void> checkAndNavigateToLoanRepayment(int groupId, int cycleId) async {
+  Future<void> checkAndNavigateToLoanRepayment(String groupId, String cycleId) async {
     final meetingCount =
         await DatabaseHelper.instance.countMeetingsForGroup(groupId, cycleId);
     meetingNo = meetingCount;
@@ -767,15 +768,32 @@ class _StartMeetingState extends State<StartMeeting> {
   String pattern = '';
   RegExp myRegExp = RegExp(r'.*');
 
-  Future<void> fetchShareData(int groupId) async {
-    print('Here');
+  void fetchDataFromConstitutionTable() async {
+  DatabaseHelper databaseHelper = DatabaseHelper.instance;
+  
+  // Fetch all data from constitution_table
+  List<Map<String, dynamic>>? constitutionData = await databaseHelper.getConstitutionData();
+  
+  if (constitutionData != null && constitutionData.isNotEmpty) {
+    // Process the retrieved data, for example:
+    for (var row in constitutionData) {
+      print(row); // Access each row of data
+      // Access specific values by their column names, e.g., row['maxSharesPerMember']
+    }
+  } else {
+    print('No data found in the constitution_table');
+  }
+}
+
+  Future<void> fetchShareData(String groupId) async {
+    print('Here $groupId');
     try {
       // Call the getSharePurchase function
-      final Map<String, dynamic> data =
-          await DatabaseHelper.instance.getSharePurchase(groupId);
+      final Map<String, dynamic>? data =
+          await DatabaseHelper.instance.getSharesByGroupId(groupId);
 
       // Handle the data you retrieved
-      print("Data: ${data}");
+      print("Data shares: ${data}");
 
       // Check if the data is null
       if (data == null) {
@@ -2456,7 +2474,7 @@ class _StartMeetingState extends State<StartMeeting> {
                                                                           await SharedPreferences
                                                                               .getInstance();
                                                                       final loggedInUserId =
-                                                                          prefs.getInt(
+                                                                          prefs.getString(
                                                                               'userId');
                                                                       final deductionData =
                                                                           {
@@ -3442,7 +3460,7 @@ class _StartMeetingState extends State<StartMeeting> {
 
                                                           try {
                                                             // Insert the meeting data into the database
-                                                            int normalMeetingId =
+                                                            String? normalMeetingId =
                                                                 await DatabaseHelper
                                                                     .instance
                                                                     .updateMeeting(
@@ -3450,8 +3468,8 @@ class _StartMeetingState extends State<StartMeeting> {
                                                                             .meetingId,
                                                                         meetingData);
 
-                                                            if (normalMeetingId >
-                                                                0) {
+                                                            if (normalMeetingId != null
+                                                                ) {
                                                               print(
                                                                   'Meeting updated successfully.');
                                                               print(

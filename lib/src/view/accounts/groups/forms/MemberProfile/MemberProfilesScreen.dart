@@ -6,7 +6,7 @@ import 'existing_member.dart';
 import 'new_member.dart';
 
 class MemberProfilesScreen extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
 
   const MemberProfilesScreen({super.key, this.groupId});
   @override

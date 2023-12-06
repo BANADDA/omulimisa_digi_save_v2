@@ -74,9 +74,9 @@ class _CycleDataState extends State<CycleData> {
     return null; // Return null for no validation error
   }
 
-  Future<void> storeGroupIdInSharedPreferences(int groupId) async {
+  Future<void> storeGroupIdInSharedPreferences(String groupId) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setInt('groupid', groupId);
+    await sharedPreferences.setString('groupid', groupId);
   }
 
   Future<void> retrieveGroups() async {
@@ -87,7 +87,7 @@ class _CycleDataState extends State<CycleData> {
         await DatabaseHelper.instance.getAllGroupProfiles();
     // Now, you can iterate through the group profiles and access the 'id' field along with other fields.
     for (Map<String, dynamic> groupProfile in groupProfiles) {
-      int id = groupProfile['id'];
+      String id = groupProfile['id'];
       String groupName = groupProfile['groupName'];
       String countryOfOrigin = groupProfile['countryOfOrigin'];
       // ...

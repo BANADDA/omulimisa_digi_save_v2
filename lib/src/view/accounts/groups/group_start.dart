@@ -22,7 +22,7 @@ class GroupStart extends StatefulWidget {
 
 bool groupProfileSaved = false;
 bool constitutionSaved = false;
-bool scheduleSaved = false;
+// bool scheduleSaved = true;
 bool membersSaved = false;
 bool officersSaved = false;
 
@@ -33,7 +33,7 @@ class _GroupStartState extends State<GroupStart> {
     setState(() {
       allFormsCompleted = groupProfileSaved &&
           constitutionSaved &&
-          scheduleSaved &&
+          // scheduleSaved &&
           membersSaved &&
           officersSaved;
     });
@@ -42,9 +42,9 @@ class _GroupStartState extends State<GroupStart> {
   String selectedProfile = "";
   String errorMessage = "";
 
-  Future<int?> getGroupIdFromSharedPreferences() async {
+  Future<String?> getGroupIdFromSharedPreferences() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    int? groupId = sharedPreferences.getInt('groupid');
+    String? groupId = sharedPreferences.getString('groupid');
     return groupId;
   }
 
@@ -167,11 +167,11 @@ class _GroupStartState extends State<GroupStart> {
         await DatabaseHelper.instance.getAllAssignedPositions();
 
     // Create a map to group assigned positions by group
-    Map<int, Map<String, dynamic>> groupedPositions = {};
+    Map<String, Map<String, dynamic>> groupedPositions = {};
 
     // Iterate through the assigned positions and group them by group ID
     for (Map<String, dynamic> position in assignedPositions) {
-      int groupId = position['group_id'];
+      String groupId = position['group_id'];
 
       // Initialize an inner map for the group if it doesn't exist in the outer map
       groupedPositions.putIfAbsent(groupId, () => {});
@@ -181,7 +181,7 @@ class _GroupStartState extends State<GroupStart> {
     }
 
     // Now, you can iterate through the grouped positions and print them by group.
-    for (int groupId in groupedPositions.keys) {
+    for (String groupId in groupedPositions.keys) {
       print('Group ID: $groupId');
       Map<String, dynamic> positionsInGroup = groupedPositions[groupId]!;
 
@@ -199,24 +199,24 @@ class _GroupStartState extends State<GroupStart> {
   }
 
   double? registrationFee = 0.0;
-  List<int> userIDs = [];
-  int? groupProfileId = 0;
+  List<String> userIDs = [];
+  String? groupProfileId = '';
 
   Future<void> IDs() async {
-    try {
+    // try {
       // Retrieve the necessary data from your form or other sources
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
-      int? groupId = sharedPreferences.getInt('groupid');
+      String? groupId = sharedPreferences.getString('groupid');
       groupProfileId =
           await DatabaseHelper.instance.getGroupProfileId(groupId!);
-      int? constitutionId =
+      String? constitutionId =
           await DatabaseHelper.instance.getConstitutionId(groupId);
-      int? cycleScheduleId =
-          await DatabaseHelper.instance.getCycleScheduleId(groupId);
-      int? groupMemberId =
+      // String? cycleScheduleId =
+      //     await DatabaseHelper.instance.getCycleScheduleId(groupId);
+      String? groupMemberId =
           await DatabaseHelper.instance.getGroupMemberId(groupId);
-      int? assignedPositionId =
+      String? assignedPositionId =
           await DatabaseHelper.instance.getAssignedPositionId(groupId);
       print('Constituiton Id: $constitutionId');
       registrationFee =
@@ -236,39 +236,39 @@ class _GroupStartState extends State<GroupStart> {
       } else {
         print('No user IDs found for Group Profile ID: $groupProfileId');
       }
-    } catch (e) {
-      // Handle any exceptions that may occur during data retrieval or insertion
-      print('Error during form submission: $e');
-      // You can show an error message to the user if needed
-    }
+    // } catch (e) {
+    //   // Handle any exceptions that may occur during data retrieval or insertion
+    //   print('Error during form submission: $e');
+    //   // You can show an error message to the user if needed
+    // }
   }
 
   Future<void> handleFormSubmission() async {
-    try {
+    // try {
       // Retrieve the necessary data from your form or other sources
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
-      int? groupId = sharedPreferences.getInt('groupid');
-      int? groupProfileId =
+      String? groupId = sharedPreferences.getString('groupid');
+      String? groupProfileId =
           await DatabaseHelper.instance.getGroupProfileId(groupId!);
-      int? constitutionId =
+      String? constitutionId =
           await DatabaseHelper.instance.getConstitutionId(groupId);
-      int? cycleScheduleId =
-          await DatabaseHelper.instance.getCycleScheduleId(groupId);
-      int? groupMemberId =
+      // String? cycleScheduleId =
+      //     await DatabaseHelper.instance.getCycleScheduleId(groupId);
+      String? groupMemberId =
           await DatabaseHelper.instance.getGroupMemberId(groupId);
-      int? assignedPositionId =
+      String? assignedPositionId =
           await DatabaseHelper.instance.getAssignedPositionId(groupId);
       final prefs = await SharedPreferences.getInstance();
 
-      int loggedInUserId = prefs.getInt('userId') ?? -1;
+      String loggedInUserId = prefs.getString('userId') ?? '';
       // Insert the data into the linked_data table
-      int? insertedRowId = await DatabaseHelper.instance.insertLinkedData(
+      String? insertedRowId = await DatabaseHelper.instance.insertLinkedData(
         groupId,
         loggedInUserId,
         groupProfileId,
         constitutionId,
-        cycleScheduleId,
+        // cycleScheduleId,
         groupMemberId,
         assignedPositionId,
       );
@@ -279,7 +279,7 @@ class _GroupStartState extends State<GroupStart> {
             'Data inserted into linked_data table with row ID: $insertedRowId');
 
         if (userIDs.isNotEmpty) {
-          for (int userId in userIDs) {
+          for (String userId in userIDs) {
             Map<String, dynamic> groupFeeData = {
               'member_id': userId,
               'group_id': insertedRowId,
@@ -287,7 +287,7 @@ class _GroupStartState extends State<GroupStart> {
             };
 
             // Now you can use groupFeeData to insert the registration fee for each user
-            int result =
+            String result =
                 await DatabaseHelper.instance.insertGroupFee(groupFeeData);
 
             if (result != 0) {
@@ -297,7 +297,7 @@ class _GroupStartState extends State<GroupStart> {
             }
           }
 
-          final int? groupProfileId =
+          final String? groupProfileId =
               await DatabaseHelper.instance.getGroupProfileId(groupId);
 
           if (groupProfileId != -1) {
@@ -322,7 +322,7 @@ class _GroupStartState extends State<GroupStart> {
               int loanFundAmount = removeCommasAndConvertToInt(loanFund!);
 
               print('Funds: $socialFundAmount and $loanFundAmount');
-              final int insertedCycleData = await DatabaseHelper.instance
+              final String insertedCycleData = await DatabaseHelper.instance
                   .insertFundsIntoCycleMeeting(
                       groupId, socialFundAmount, loanFundAmount);
               if (insertedCycleData != null) {
@@ -340,7 +340,7 @@ class _GroupStartState extends State<GroupStart> {
                   'cycleMeetingID': insertedCycleData,
                 };
 
-                int activeCycleMeetingID = await DatabaseHelper.instance
+                String activeCycleMeetingID = await DatabaseHelper.instance
                     .insertActiveCycleMeeting(activeCycle);
 
                 // await DatabaseHelper.instance
@@ -415,7 +415,7 @@ class _GroupStartState extends State<GroupStart> {
                   formatDateWithoutTime(DateTime.now().toLocal());
 
               final prefs = await SharedPreferences.getInstance();
-              final loggedInUserId = prefs.getInt('userId');
+              final loggedInUserId = prefs.getString('userId');
               final deductionData = {
                 'group_id': groupId,
                 'logged_in_user_id': loggedInUserId,
@@ -454,11 +454,11 @@ class _GroupStartState extends State<GroupStart> {
         print('Failed to insert data into linked_data table');
         // You can show an error message to the user if needed
       }
-    } catch (e) {
-      // Handle any exceptions that may occur during data retrieval or insertion
-      print('Error during form submission: $e');
-      // You can show an error message to the user if needed
-    }
+    // } catch (e) {
+    //   // Handle any exceptions that may occur during data retrieval or insertion
+    //   print('Error during form submission: $e');
+    //   // You can show an error message to the user if needed
+    // }
   }
 
   @override
@@ -476,7 +476,7 @@ class _GroupStartState extends State<GroupStart> {
   @override
   Widget build(BuildContext context) {
     // Fetch the groupId from shared preferences
-    getGroupIdFromSharedPreferences().then((int? groupId) {
+    getGroupIdFromSharedPreferences().then((String? groupId) {
       if (groupId != null) {
         // Use the groupId as needed
         // print('Group ID from SharedPreferences Start SREEN: $groupId');
@@ -536,7 +536,7 @@ class _GroupStartState extends State<GroupStart> {
         ),
         body: FutureBuilder(
             future: getGroupIdFromSharedPreferences(),
-            builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 // Handle the case where the future is still running
                 return const CircularProgressIndicator(); // Or any other loading indicator
@@ -545,7 +545,7 @@ class _GroupStartState extends State<GroupStart> {
                 return Text('Error: ${snapshot.error}');
               } else {
                 // Successfully retrieved the groupId
-                int? groupId = snapshot.data;
+                String? groupId = snapshot.data;
                 if (groupId != null) {
                   // Use the groupId as needed
                   print('Group ID from SharedPreferences: $groupId');
@@ -557,7 +557,7 @@ class _GroupStartState extends State<GroupStart> {
                     onWillPop: () async {
                       // Check the flag of the current section and prevent navigation if saved
                       if (constitutionSaved ||
-                          scheduleSaved ||
+                          // scheduleSaved ||
                           membersSaved ||
                           officersSaved) {
                         return false; // Block back navigation
@@ -621,19 +621,19 @@ class _GroupStartState extends State<GroupStart> {
                                     constitutionSaved,
                                     groupProfileSaved,
                                     "Group Profile"),
-                                _buildGroupProfile(
-                                    "Cycle Schedule",
-                                    ScheduleScreen(
-                                      groupId: groupId,
-                                    ),
-                                    scheduleSaved,
-                                    constitutionSaved,
-                                    "Constitution"),
+                                // _buildGroupProfile(
+                                //     "Cycle Schedule",
+                                //     ScheduleScreen(
+                                //       groupId: groupId,
+                                //     ),
+                                //     scheduleSaved,
+                                //     constitutionSaved,
+                                //     "Constitution"),
                                 _buildGroupProfile(
                                     "Add Members",
                                     MemberProfilesScreen(groupId: groupId),
                                     membersSaved,
-                                    scheduleSaved,
+                                    groupProfileSaved,
                                     "Cycle Schedule"),
                                 _buildGroupProfile(
                                     "Elect Officers",

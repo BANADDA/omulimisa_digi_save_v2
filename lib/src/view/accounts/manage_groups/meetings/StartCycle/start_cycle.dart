@@ -13,7 +13,7 @@ import '../../../../widgets/history.dart';
 import '../../group_screen.dart';
 
 class StartCycle extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
   final String? groupName;
   const StartCycle({
     super.key,
@@ -71,7 +71,7 @@ class _StartCycleState extends State<StartCycle> {
   Future<void> saveGroupInitialData() async {
     // Fetch Total Savings
     totalGroupSavings =
-        await DatabaseHelper.instance.getTotalGroupSavings(widget.groupId!);
+    await DatabaseHelper.instance.getTotalGroupSavings(widget.groupId!);
     print('New Savings: UGX $totalGroupSavings');
     // Fetch active loans
     final totalActiveLoanAmount = await DatabaseHelper.instance
@@ -328,11 +328,11 @@ class _StartCycleState extends State<StartCycle> {
   String pattern = '';
   RegExp myRegExp = RegExp(r'.*');
 
-  Future<void> fetchShareData(int groupId) async {
+  Future<void> fetchShareData(String groupId) async {
     try {
       // Call the getSharePurchase function
-      final Map<String, dynamic> data =
-          await DatabaseHelper.instance.getSharePurchase(groupId);
+      final Map<String, dynamic>? data =
+          await DatabaseHelper.instance.getSharesByGroupId(groupId);
 
       if (data == null) {
         // Handle the case where no group is found
@@ -495,7 +495,7 @@ class _StartCycleState extends State<StartCycle> {
       String dateWithoutTime = formatDateWithoutTime(DateTime.now().toLocal());
 
       final prefs = await SharedPreferences.getInstance();
-      final loggedInUserId = prefs.getInt('userId');
+      final loggedInUserId = prefs.getString('userId');
       final finesAmount = {
         'group_id': widget.groupId,
         'logged_in_user_id': loggedInUserId,
@@ -508,7 +508,7 @@ class _StartCycleState extends State<StartCycle> {
       print('Savings Account Inserted for $savingsAccount: $finesAmount');
       // Call the insertFine function to insert the fine into the database
       await DatabaseHelper.instance.insertFine(
-          memberId, amount, reason, widget.groupId!, 1, 0, savingsAccount);
+          memberId, amount, reason, widget.groupId!, '0', '0', savingsAccount);
       setState(() {
         groupAccountsAfter();
       });
@@ -1928,7 +1928,7 @@ class _StartCycleState extends State<StartCycle> {
                                                                           await SharedPreferences
                                                                               .getInstance();
                                                                       final loggedInUserId =
-                                                                          prefs.getInt(
+                                                                          prefs.getString(
                                                                               'userId');
                                                                       final deductionData =
                                                                           {
@@ -2722,7 +2722,7 @@ class _StartCycleState extends State<StartCycle> {
                                                               'Meeting Data: $meetingData');
 
                                                           // Insert the meeting data into the database
-                                                          int meetingId =
+                                                          String meetingId =
                                                               await DatabaseHelper
                                                                   .instance
                                                                   .insertCycleStartMeeting(
@@ -2753,7 +2753,7 @@ class _StartCycleState extends State<StartCycle> {
                                                           };
 
                                                           try {
-                                                            int activeCycleMeetingID =
+                                                            String activeCycleMeetingID =
                                                                 await DatabaseHelper
                                                                     .instance
                                                                     .insertActiveCycleMeeting(

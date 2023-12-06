@@ -68,7 +68,7 @@ class MeetingData {
 }
 
 class EndCycle extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
   final bool? isNavigationEnabled;
   final String? groupName;
   const EndCycle({
@@ -107,11 +107,11 @@ class _EndCycleState extends State<EndCycle> {
   List<String> inputValues = [];
   int shareCost = 2000;
 
-  int cycleId = 0;
+  String cycleId = '';
 
   // Create a new async function to retrieve activeCycleMeetingID
   void getCycleMeetingID() async {
-    int? activeCycleMeetingID =
+    String? activeCycleMeetingID =
         await DatabaseHelper.instance.getCycleIdForGroup(widget.groupId!);
     if (activeCycleMeetingID != null) {
       print('Active Cycle Meeting ID: $activeCycleMeetingID');
@@ -1376,7 +1376,7 @@ class _EndCycleState extends State<EndCycle> {
                                                                           .bold,
                                                                 ),
                                                                 text:
-                                                                    "${widget.groupName} group's ${cycleId}${getOrdinalIndicator(cycleId)} cycle eneded successfully",
+                                                                    "${widget.groupName} group's ${cycleId} cycle eneded successfully",
                                                                 showConfirmBtn:
                                                                     true,
                                                                 onConfirmBtnTap:

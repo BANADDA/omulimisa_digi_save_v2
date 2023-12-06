@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MemberDetailsScreen extends StatelessWidget {
-  final int memberId;
+  final String memberId;
   final List<Map<String, dynamic>> memberDetails;
 
   const MemberDetailsScreen({super.key, 

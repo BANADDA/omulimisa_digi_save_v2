@@ -9,8 +9,8 @@ import '/src/view/accounts/manage_groups/meetings/end_cycle/passbook/shareout.da
 import '../../../../../../../database/localStorage.dart';
 
 class PassBook extends StatefulWidget {
-  final int groupId;
-  final int cycleId;
+  final String groupId;
+  final String cycleId;
 
   const PassBook({Key? key, required this.groupId, required this.cycleId})
       : super(key: key);
@@ -35,7 +35,7 @@ class _PassBookState extends State<PassBook> {
     }
   }
 
-  Future<void> fetchSharePurchases(int cycleMeetingId, int groupId) async {
+  Future<void> fetchSharePurchases(String cycleMeetingId, String groupId) async {
     print('cycle Id = $cycleMeetingId || group Id = $groupId');
     if (cycleMeetingId != null && groupId != null) {
       sharePurchases = await dbHelper.getMemberShares(groupId, cycleMeetingId);
@@ -122,7 +122,7 @@ class _PassBookState extends State<PassBook> {
   //   }
   // }
 
-  Future<double> retrieveSharePurchases(int cycleMeetingId, int groupId) async {
+  Future<double> retrieveSharePurchases(String cycleMeetingId, String groupId) async {
     // Check if widget.groupId and widget.cycleId are not null
     if (widget.groupId != null && widget.cycleId != null) {
       // Get the member shares for the current cycle and group
@@ -197,7 +197,7 @@ class _PassBookState extends State<PassBook> {
   //   return totalShareQuantitySum;
   // }
 
-  Future<double> retriveDefaultedLoan(int groupId) async {
+  Future<double> retriveDefaultedLoan(String groupId) async {
     double defaultedLoans = 0.0;
     if (groupId != null) {
       defaultedLoans = await dbHelper.getSumOfActiveLoans(groupId);
@@ -205,7 +205,7 @@ class _PassBookState extends State<PassBook> {
     return defaultedLoans;
   }
 
-  Future<double> getFines(int groupId, int cycleId) async {
+  Future<double> getFines(String groupId, String cycleId) async {
     double totalFinesAmount = 0.0;
     if (cycleId == null && groupId == null) {
       print('Null Ids:');
@@ -215,7 +215,7 @@ class _PassBookState extends State<PassBook> {
     return totalFinesAmount;
   }
 
-  Future<double> getInterests(int groupId, int cycleId) async {
+  Future<double> getInterests(String groupId, String cycleId) async {
     double totalLoanAmount = 0.0;
     double? interestRate =
         await DatabaseHelper.instance.getInterestRate(groupId);

@@ -7,7 +7,7 @@ import 'existing_member.dart';
 import 'new_member.dart';
 
 class MemberProfilesScreen extends StatefulWidget {
-  final int groupId;
+  final String groupId;
   final String groupName;
   final Function() refreshCallback;
 

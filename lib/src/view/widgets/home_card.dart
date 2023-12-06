@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:ui';
 import '../../../database/constants.dart';
+import '../../../database/fetchLoaction.dart';
 import '../authentication/login_screen.dart';
 import 'package:http/http.dart' as http;
 
@@ -57,6 +58,7 @@ class _FrostedGlassBoxState extends State<FrostedGlassBox> {
 
   @override
   void initState() {
+    fetchAndSaveLocations();
     // initializeSharedPreferences();
     super.initState();
   }
@@ -64,12 +66,23 @@ class _FrostedGlassBoxState extends State<FrostedGlassBox> {
   @override
   Widget build(BuildContext context) {
     String selectedLanguage = 'English';
-    void navigateToLoginscreen() {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const Loginscreen(),
-        ),
-      );
+
+    Future<void> navigateToLoginscreen() async {
+      if (await checkInternetConnectivity()) {
+        fetchAndSaveLocations();
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const Loginscreen(),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You need internet connection to proceed!!!'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
 
     return ClipRRect(
@@ -126,7 +139,6 @@ class _FrostedGlassBoxState extends State<FrostedGlassBox> {
                   alignment: Alignment.center,
                   child: TextButton(
                     onPressed: () {
-
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {

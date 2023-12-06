@@ -49,7 +49,7 @@ class _NavBarState extends State<NavBar> {
     Future<User?> getUserData() async {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
-      final userId = prefs.getInt('userId');
+      final userId = prefs.getString('userId');
       final userFirstName = prefs.getString('userFirstName');
       final userLastName = prefs.getString('userLastName');
 
@@ -85,12 +85,20 @@ class _NavBarState extends State<NavBar> {
       );
     }
 
+    // void navigateToProfile() {
+    //   Navigator.of(context).push(
+    //     MaterialPageRoute(
+    //       builder: (context) => const UserProfile(),
+    //     ),
+    //   );
+    // }
+
     // New Groups
     void navigateGroupScreen() {
       setState(() {
         groupProfileSaved = false;
         constitutionSaved = false;
-        scheduleSaved = false;
+        // scheduleSaved = false;
         membersSaved = false;
         officersSaved = false;
         getUserData();
@@ -118,14 +126,14 @@ class _NavBarState extends State<NavBar> {
     Future<Uint8List>? getImage() async {
       final prefs = await SharedPreferences.getInstance();
 
-      final userId = prefs.getInt('userId');
-      print('User id: $userId');
+      final userId = prefs.getString('userId');
+      print('User id in navbar: $userId');
 
       String? base64EncodedImage;
       try {
         if (userId != null) {
           base64EncodedImage =
-              await DatabaseHelper.instance.getImagePathForMember(userId);
+              await DatabaseHelper.instance.getImageForMember(userId);
           print('Byte image: $base64EncodedImage');
         } else {
           print('Error: User ID is null');
@@ -145,16 +153,28 @@ class _NavBarState extends State<NavBar> {
     String phone;
 
     Future<String>? getphone() async {
+      List<Map<String, dynamic>> userData =
+          await DatabaseHelper.instance.getAllUserDataExceptImage();
+      print('All user data: $userData');
       final prefs = await SharedPreferences.getInstance();
 
-      final userId = prefs.getInt('userId');
+      final userId = prefs.getString('userId');
       print('User id: $userId');
-
       String? phoneNumber;
+      // phoneNumber = await DatabaseHelper.instance
+      //     .getPhoneNumberById('d00d3f18-2769-4f19-b548-341dbfd17bed');
+
+      // if (phoneNumber != null) {
+      //   print('Phone number in nav: $phoneNumber');
+      // } else {
+      //   print('Phone number not found for the given ID.');
+      // }
+
+      phoneNumber;
       try {
         if (userId != null) {
-          phoneNumber = await DatabaseHelper.instance.getphoneNumber(userId);
-          print('Byte image: $phoneNumber');
+          phoneNumber = await DatabaseHelper.instance.getUserPhone(userId);
+          print('Phone_number: $phoneNumber, userid: $userId');
         } else {
           print('Error: User ID is null');
         }
@@ -165,7 +185,7 @@ class _NavBarState extends State<NavBar> {
         phone = phoneNumber;
         return phone;
       } else {
-        print('Error fetching user image');
+        print('Error fetching user phone');
         return 'null';
       }
     }
@@ -281,7 +301,9 @@ class _NavBarState extends State<NavBar> {
                         CustomListTile(
                           icon: Icons.person,
                           title: 'View Profile',
-                          onTap: () {},
+                          onTap: () {
+                            // navigateToProfile();
+                          },
                         ),
                         CustomListTile(
                           icon: Icons.logout,

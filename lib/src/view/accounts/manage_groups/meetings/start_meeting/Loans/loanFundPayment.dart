@@ -7,9 +7,9 @@ import 'PaymentInfo.dart';
 import 'loan_applications.dart';
 
 class LoanFundPaymentScreen extends StatefulWidget {
-  final int groupId;
-  final int cycleId;
-  final int? meetingId;
+  final String groupId;
+  final String cycleId;
+  final String? meetingId;
 
   const LoanFundPaymentScreen(
       {Key? key, required this.groupId, required this.cycleId, this.meetingId})
@@ -52,7 +52,7 @@ class _LoanFundPaymentScreenState extends State<LoanFundPaymentScreen> {
   DatabaseHelper dbHelper = DatabaseHelper.instance;
 
   Future<double> calculateTotalPayments(
-      int groupId, int memberId, int loanId) async {
+      String groupId, String memberId, String loanId) async {
     double totalPayments =
         await dbHelper.getTotalPaymentsForLoan(groupId, memberId, loanId);
     return totalPayments;
@@ -273,7 +273,7 @@ class _LoanFundPaymentScreenState extends State<LoanFundPaymentScreen> {
 
 class LoanPaymentWidget extends StatefulWidget {
   final LoanApplication loan;
-  int groupId;
+  String groupId;
   final ValueChanged<double> onPaymentAmountChanged;
   final TextEditingController paymentController;
 

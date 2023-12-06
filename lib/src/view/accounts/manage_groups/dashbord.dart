@@ -22,7 +22,7 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   List<String> groupNames = []; // Define groupNames at the class level
-  List<int> groupIds = [];
+  List<String> groupIds = [];
 
   Future<void> retrieveGroupNames() async {
     print('==========Retriving groups=========');
@@ -31,7 +31,7 @@ class _DashBoardState extends State<DashBoard> {
       // print('User ID: ${user.id}');
       final prefs = await SharedPreferences.getInstance();
       // final token = prefs.getString('token');
-      final userId = prefs.getInt('userId');
+      final userId = prefs.getString('userId');
       print('User Id: $userId');
 
       final member = await DatabaseHelper.instance.getGroupIdsForUser(userId!);
@@ -70,7 +70,7 @@ class _DashBoardState extends State<DashBoard> {
       groupNames.clear();
 
       for (Map<String, dynamic> data in linkedData) {
-        int groupId = data['group_id']; // Provide a default value if null
+        String groupId = data['group_id']; // Provide a default value if null
         String groupName = data['groupName'];
         groupIds.add(groupId);
         groupNames.add(groupName);
@@ -227,7 +227,7 @@ class _DashBoardState extends State<DashBoard> {
                                 ),
                               ),
                               onPressed: () {
-                                int groupId =
+                                String groupId =
                                     groupIds[groupNames.indexOf(groupName)];
                                 // Navigate to the dashboard for the selected group
                                 Navigator.push(

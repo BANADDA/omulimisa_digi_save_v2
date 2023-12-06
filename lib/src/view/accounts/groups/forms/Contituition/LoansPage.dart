@@ -10,7 +10,7 @@ import 'GroupSharesPage.dart';
 import 'constitution_screen.dart';
 
 class LoansPage extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
   @override
   _LoansPageState createState() => _LoansPageState();
 

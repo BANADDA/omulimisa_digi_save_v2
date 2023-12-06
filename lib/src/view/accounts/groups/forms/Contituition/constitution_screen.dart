@@ -17,7 +17,7 @@ class ConstitutionData {
 }
 
 class Constitution extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
 
   const Constitution({super.key, this.groupId});
   @override

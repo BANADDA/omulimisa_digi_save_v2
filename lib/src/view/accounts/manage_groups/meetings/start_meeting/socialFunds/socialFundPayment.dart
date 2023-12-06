@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SocialFundPaymentScreen extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
   const SocialFundPaymentScreen({super.key, this.groupId});
 
   @override

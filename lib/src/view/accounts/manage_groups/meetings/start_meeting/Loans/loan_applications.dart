@@ -1,9 +1,9 @@
 class LoanApplication {
-  final int id;
-  final int groupId;
+  final String id;
+  final String groupId;
   final String submissionDate;
   final String loanApplicant;
-  final int groupMemberId;
+  final String groupMemberId;
   final double amountNeeded;
   final String loanPurpose;
   final String repaymentDate;

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../../../../database/localStorage.dart';
 
 class LoanEditingScreen extends StatefulWidget {
-  final int groupId;
+  final String groupId;
   final Map<String, dynamic> loanData;
 
   const LoanEditingScreen(
@@ -41,7 +41,7 @@ class _LoanEditingScreenState extends State<LoanEditingScreen> {
   void _updateLoanData() async {
     if (_formKey.currentState!.validate()) {
       final DatabaseHelper dbHelper = DatabaseHelper.instance;
-      final int loanId = widget.loanData['id'];
+      final String loanId = widget.loanData['id'];
       final double updatedAmount = double.parse(_amountController.text);
       final String updatedLoanPurpose = _loanPurposeController.text;
       final String updatedRepaymentDate = _repaymentDateController.text;

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:connectivity/connectivity.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -20,6 +21,7 @@ Future<void> getUsers(
     'Authorization': 'Token $token',
     'Content-Type': 'application/json',
   });
+  print('Server: $serverDataResponse');
   if (serverDataResponse.statusCode == 200) {
     // Step 4: Clear local SQLite database for this table
     await database.rawDelete('DELETE FROM $tableName');
@@ -60,6 +62,9 @@ Future<void> getUsers(
       }
     }
   }
+  else {
+    print('Response: ${serverDataResponse.body}');
+  }
 }
 
 Future<void> sendUsers(String sendEndpoint, String tableName,
@@ -96,7 +101,7 @@ Future<void> sendUsers(String sendEndpoint, String tableName,
   }
 }
 
-Future<void> syncUserDataWithApi() async {
+Future<void> getNewUsers() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
   final database = await openDatabase('app_database.db');
@@ -114,28 +119,11 @@ Future<void> syncUserDataWithApi() async {
         final sendEndpoint = endpoints!['sendEndpoint'];
         final retrieveEndpoint = endpoints['retrieveEndpoint'];
 
-        var userCount = Sqflite.firstIntValue(
-            await database.rawQuery('SELECT COUNT(*) FROM users'));
-        if (userCount == 0 && token != null) {
-          getUsers(retrieveEndpoint!, tableName, token);
-        } else {
-          final unsyncedData = await database.rawQuery(
-            'SELECT * FROM $tableName WHERE sync_flag = ?',
-            [0],
-          );
-          if (unsyncedData.isNotEmpty && token != null) {
-            // Step 4: Clear local SQLite database for this table
-            try {
-              sendUsers(sendEndpoint!, tableName, unsyncedData, token);
-              getUsers(retrieveEndpoint!, tableName, token);
-            } on Exception catch (e) {
-              print('Error: $e');
-            }
-          } else if (token != null) {
+          if (token != null) {
             print('Getting data');
-            getUsers(retrieveEndpoint!, tableName, token);
+            await getUsers(retrieveEndpoint!, tableName, token);
           }
-        }
+        
       }
     } catch (e) {
       print('Error uploading user data: $e');

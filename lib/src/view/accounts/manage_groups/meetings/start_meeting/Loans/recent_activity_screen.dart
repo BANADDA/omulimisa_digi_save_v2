@@ -5,9 +5,9 @@ import '../../../../../../../database/localStorage.dart';
 import 'LoanEditingScreen.dart';
 
 class RecentActivityScreen extends StatefulWidget {
-  final int groupId;
-  final int cycleId;
-  final int meetingId;
+  final String groupId;
+  final String cycleId;
+  final String meetingId;
   const RecentActivityScreen({
     super.key,
     required this.groupId,
@@ -28,7 +28,7 @@ class _RecentActivityScreenState extends State<RecentActivityScreen> {
   }
 
   // Fetch recent loan application data from the database
-  void fetchRecentActivityData(int groupId, int meetingId, int cycleId) async {
+  void fetchRecentActivityData(String groupId, String meetingId, String cycleId) async {
     try {
       final DatabaseHelper dbHelper = DatabaseHelper.instance;
       final List<Map<String, dynamic>> activityData =
@@ -291,7 +291,7 @@ class _RecentActivityScreenState extends State<RecentActivityScreen> {
                                 'reversed_data': deletedData
                               };
 
-                              int reverse = await DatabaseHelper.instance
+                              String reverse = await DatabaseHelper.instance
                                   .inserReversedTransactions(reversedData);
 
                               if (reverse != 0) {

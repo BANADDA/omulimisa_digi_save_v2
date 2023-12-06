@@ -21,7 +21,7 @@ class GroupSharesData {
 }
 
 class GroupSharesPage extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
   final ConstitutionData data; // Data from Constitution screen
   final ConstitutionData?
       constitutionData; // Data from the previous screen (nullable)

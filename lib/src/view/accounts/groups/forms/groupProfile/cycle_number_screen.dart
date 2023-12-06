@@ -42,9 +42,9 @@ class _CycleNumberState extends State<CycleNumber> {
   CycleStatus? _cycleStatus = CycleStatus.InMiddle; // Default selection
   String _buttonText = "Next";
 
-  Future<void> storeGroupIdInSharedPreferences(int groupId) async {
+  Future<void> storeGroupIdInSharedPreferences(String groupId) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setInt('groupid', groupId);
+    await sharedPreferences.setString('groupid', groupId);
   }
 
   @override
@@ -179,7 +179,7 @@ class _CycleNumberState extends State<CycleNumber> {
                                                     Navigator.of(context).pop();
 
                                                     // Insert data into 'group_profile' table here
-                                                    final int? insertedRows =
+                                                    final String? insertedRows =
                                                         await DatabaseHelper
                                                             .instance
                                                             .insertGroupProfile({
@@ -211,8 +211,8 @@ class _CycleNumberState extends State<CycleNumber> {
                                                       'socialFund': '0',
                                                     });
 
-                                                    if (insertedRows! > 0) {
-                                                      int groupId =
+                                                    if (insertedRows!= null) {
+                                                      String groupId =
                                                           insertedRows;
                                                       // Data inserted successfully
                                                       storeGroupIdInSharedPreferences(

@@ -12,8 +12,8 @@ import 'package:lottie/lottie.dart';
 class ShareOutScreen extends StatefulWidget {
   final List<Map<String, dynamic>>? shares;
   final num? shareOut;
-  final int? groupId;
-  final int? cycleId;
+  final String? groupId;
+  final String? cycleId;
 
   const ShareOutScreen(
       {Key? key, this.shares, this.shareOut, this.groupId, this.cycleId})
@@ -26,9 +26,9 @@ class ShareOutScreen extends StatefulWidget {
 class _ShareOutScreenState extends State<ShareOutScreen> {
   DatabaseHelper dbHelper = DatabaseHelper.instance;
   double totalShareQuantitySum = 0.0;
-  Map<int, double> memberShareTotal = {};
+  Map<String, double> memberShareTotal = {};
 
-  Future<String> fetchGroupMemberFullName(int groupMemberId) async {
+  Future<String> fetchGroupMemberFullName(String groupMemberId) async {
     // Call the function to get the full names of the group member
     Map<String, dynamic> groupMemberNames =
         await DatabaseHelper.instance.getGroupMemberFullNames(groupMemberId);
@@ -48,7 +48,7 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
 
   List<Map<String, dynamic>> sharePurchases = [];
 
-  Future<void> fetchSharePurchases(int cycleMeetingId, int groupId) async {
+  Future<void> fetchSharePurchases(String cycleMeetingId, String groupId) async {
     sharePurchases = (await dbHelper.getMemberShares(groupId, cycleMeetingId))!;
 
     if (sharePurchases != null) {
@@ -64,7 +64,7 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
         // Check if the sharePurchasesList is empty before trying to parse it
         if (sharePurchasesList.isNotEmpty) {
           for (var share in sharePurchasesList) {
-            int memberId = share['memberId'];
+            String memberId = share['memberId'];
             double shareQuantity =
                 share['shareQuantity'].toDouble(); // Convert to double
 
@@ -101,9 +101,9 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
     bool success = true;
     String errorMessage = '';
 
-    for (int memberId in memberShareTotal.keys) {
+    for (String memberId in memberShareTotal.keys) {
       double shareValue = memberShareTotal[memberId]!;
-      int? userId = await dbHelper.getUserIdFromGroupMember(
+      String? userId = await dbHelper.getUserIdFromGroupMember(
           await dbHelper.database, memberId);
       final data = {
         'group_id': groupId,
@@ -383,7 +383,7 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
             height: 25,
           ),
           Column(
-            children: memberShareTotal.keys.map((int memberId) {
+            children: memberShareTotal.keys.map((String memberId) {
               double totalShareQuantity = memberShareTotal[memberId] ?? 0.0;
               double shareValue = totalShareQuantity *
                   (widget.shareOut!); // Calculate shareValue as needed

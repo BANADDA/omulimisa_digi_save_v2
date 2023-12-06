@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../../database/localStorage.dart';
 
 class ExistingMemberScreen extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
 
   const ExistingMemberScreen({super.key, this.groupId});
   @override
@@ -26,7 +26,7 @@ class _ExistingMemberScreenState extends State<ExistingMemberScreen> {
   }
 
   void _fetchGroupMembers() async {
-    final int? groupId = widget.groupId;
+    final String? groupId = widget.groupId;
     try {
       final membersFromDb =
           await DatabaseHelper.instance.getGroupMembersByGroupId(groupId!);
@@ -141,8 +141,8 @@ class _ExistingMemberScreenState extends State<ExistingMemberScreen> {
   }
 
   void _addMember(Map<String, dynamic> member) async {
-    final int userId = member['id'];
-    final int? groupId = widget.groupId;
+    final String userId = member['id'];
+    final String? groupId = widget.groupId;
 
     if (groupId != null) {
       // Check if the member is already in the group with the specified groupId
@@ -150,9 +150,9 @@ class _ExistingMemberScreenState extends State<ExistingMemberScreen> {
           await DatabaseHelper.instance.isMemberInGroup(userId, groupId);
 
       if (!isMemberInGroup) {
-        final int result =
+        final String result =
             await DatabaseHelper.instance.addMemberToGroup(userId, groupId);
-        if (result > 0) {
+        if (result != null) {
           print(
               'Member ${member['fname']} ${member['lname']} with ID $userId added successfully to group $groupId');
           ScaffoldMessenger.of(context).showSnackBar(

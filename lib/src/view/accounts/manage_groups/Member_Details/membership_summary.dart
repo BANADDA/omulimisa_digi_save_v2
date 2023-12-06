@@ -4,7 +4,7 @@ import 'MemberDetailsScreen.dart';
 import 'New_Members/MemberProfilesScreen.dart';
 
 class MembershipSummaryScreen extends StatefulWidget {
-  final int groupId;
+  final String groupId;
   final String groupName;
 
   const MembershipSummaryScreen({super.key, 
@@ -104,7 +104,7 @@ class _MembershipSummaryScreenState extends State<MembershipSummaryScreen> {
                                   TextButton(
                                     onPressed: () async {
                                       if (member['id'] != null) {
-                                        int memberId = member['id'];
+                                        String memberId = member['id'];
                                         print('MemberId: $memberId');
 
                                         // Retrieve the member's information

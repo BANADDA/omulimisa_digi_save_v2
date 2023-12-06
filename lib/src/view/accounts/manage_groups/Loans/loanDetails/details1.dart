@@ -47,7 +47,7 @@ class _FirstScreenState extends State<FirstScreen> {
     return loanTaken - totalPayment + interest;
   }
 
-  int loanerId = 0;
+  String loanerId = '';
   Uint8List? _bytesImage;
   Map<String, dynamic>? userDetails;
 
@@ -55,7 +55,7 @@ class _FirstScreenState extends State<FirstScreen> {
     final memberIdsAndUserIds =
         await DatabaseHelper.instance.getAllMemberIdsAndUserIds();
     print('Member IDs and User IDs: $memberIdsAndUserIds');
-    int memberId = widget.loanApplicationDetails['member_id'];
+    String memberId = widget.loanApplicationDetails['member_id'];
     print('MemberId: $memberId');
     loanerId = (await DatabaseHelper.instance.getUserIdForId(memberId))!;
     print('LoanerId: $loanerId');

@@ -16,8 +16,8 @@ import 'widgets/icon.dart';
 import 'widgets/member.dart';
 
 class Analystics extends StatefulWidget {
-  final int? groupId;
-  final int? cycleId;
+  final String? groupId;
+  final String? cycleId;
   const Analystics({super.key, this.groupId, this.cycleId});
 
   @override
@@ -47,15 +47,15 @@ class _AnalysticsState extends State<Analystics> {
     decimalDigits: 0,
   );
 
-  Map<int, double> calculateTotalShares(
+  Map<String, double> calculateTotalShares(
       List<Map<String, dynamic>> memberShares) {
-    Map<int, double> totalShares = {};
+    Map<String, double> totalShares = {};
 
     for (var shareData in memberShares) {
       List<dynamic> sharePurchases = json.decode(shareData['sharePurchases']);
 
       for (var purchase in sharePurchases) {
-        int? memberId = purchase['memberId'];
+        String? memberId = purchase['memberId'];
         double shareQuantity = purchase['shareQuantity'].toDouble();
 
         if (memberId != null) {
@@ -70,8 +70,8 @@ class _AnalysticsState extends State<Analystics> {
 
   List<Map<String, dynamic>> memberShares = [];
   List<Map<String, dynamic>> memberLoans = [];
-  Map<int, double> totalSharesByMember = {};
-  Map<int, double> totalLoansByMember = {};
+  Map<String, double> totalSharesByMember = {};
+  Map<String, double> totalLoansByMember = {};
 
   Future<List<Map<String, dynamic>>> _loadSharesData() async {
     // print('Group Id: ${widget.groupId} Cycle Id ${widget.cycleId}');
@@ -146,7 +146,7 @@ class _AnalysticsState extends State<Analystics> {
                 .cast<Map<String, dynamic>>();
 
         for (var purchase in sharePurchases) {
-          int memberId = purchase['memberId'];
+          String memberId = purchase['memberId'];
           double shareQuantity = purchase['shareQuantity'];
           String memberName = purchase['memberName'];
 
@@ -188,7 +188,7 @@ class _AnalysticsState extends State<Analystics> {
           }
 
           memberIds.add(
-              memberId); // Add member ID to Set to avoid retrieving loan data again
+              memberId as int); // Add member ID to Set to avoid retrieving loan data again
         }
       }
     }
@@ -238,7 +238,7 @@ class _AnalysticsState extends State<Analystics> {
     return formattedAmount;
   }
 
-  Future<String> fetchGroupMemberFullName(int groupMemberId) async {
+  Future<String> fetchGroupMemberFullName(String groupMemberId) async {
     // Call the function to get the full names of the group member
     Map<String, dynamic> groupMemberNames =
         await DatabaseHelper.instance.getGroupMemberFullNames(groupMemberId);
@@ -253,8 +253,8 @@ class _AnalysticsState extends State<Analystics> {
     }
   }
 
-  Future<void> clearLoan(int groupId, int memberId, double loanAmount,
-      int loanId, double amountNeeded) async {
+  Future<void> clearLoan(String groupId, String memberId, double loanAmount,
+      String loanId, double amountNeeded) async {
     print('Here');
     // Add your logic to clear the loan and update shares owned and total savings
     // For example, deduct loanAmount from shares owned
@@ -473,7 +473,7 @@ class _AnalysticsState extends State<Analystics> {
                           padding: const EdgeInsets.all(10.0),
                           child: Column(
                             children: totalSharesByMember.entries.map((entry) {
-                              int memberId = entry.key;
+                              String memberId = entry.key;
                               double totalShares = entry.value;
 
                               return FutureBuilder<String>(

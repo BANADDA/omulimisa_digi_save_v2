@@ -61,7 +61,7 @@ class _PhoneFormState extends State<PhoneForm> {
 
   Future<void> saveUserData(User user) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('userId', user.id!);
+    prefs.setString('userId', user.id!);
     prefs.setString('token', user.token);
     prefs.setString('userFirstName', user.firstName);
     prefs.setString('userLastName', user.lastName);
@@ -72,11 +72,12 @@ class _PhoneFormState extends State<PhoneForm> {
   Future<void> printUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    final userId = prefs.getString('userId');
     final userFirstName = prefs.getString('userFirstName');
     final userLastName = prefs.getString('userLastName');
 
     if (token != null && userFirstName != null && userLastName != null) {
-      print('User ID: $token');
+      print('User ID: $userId');
       print('User First Name: $userFirstName');
       print('User Last Name: $userLastName');
     } else {
@@ -128,6 +129,7 @@ class _PhoneFormState extends State<PhoneForm> {
     }
 
     // Perform the login process if internet is available
+    final authUser = Uri.parse('${ApiConstants.baseUrl}/auth_user/');
     final apiUrl = Uri.parse('${ApiConstants.baseUrl}/login-with-phone-code/');
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode({'phone': phoneNumber, 'unique_code': pinCode});
@@ -138,11 +140,18 @@ class _PhoneFormState extends State<PhoneForm> {
     print('JSON: :$body');
     print('Here');
 
+    final responseAuthUser = await http.post(authUser,  body: data);
+    if (responseAuthUser.statusCode == 200) {
+    
+    print('Response user: ${responseAuthUser}');
+
+
     final response = await http.post(apiUrl, body: data);
 
     if (response.statusCode == 200) {
       // Parse the response data
       final Map<String, dynamic> responseData = json.decode(response.body);
+      // ignore: avoid_print
       print('Response: $responseData');
 
       // // Access user data and token from responseData
@@ -153,19 +162,13 @@ class _PhoneFormState extends State<PhoneForm> {
 
       String token = responseData['Token'];
       String code = userData['unique_code'];
-      int userId = userData['id'];
+      String userId = userData['id'];
 
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Center(
-                child: Text(
-                    'Welcome, ${userData['fname']} ${userData['lname']}',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white))),
-            backgroundColor: Colors.green),
+          content: Text('Welcome, ${userData['fname']} ${userData['lname']}'),
+        ),
       );
 
       // print('User ID: ${userData['id']}');
@@ -186,7 +189,10 @@ class _PhoneFormState extends State<PhoneForm> {
         lastName: userData['lname'],
       ));
 
+      
+
       printUserData();
+      syncUserDataWithApi();
       getDataGroupWithApi();
       getDataMeetingWithApi();
       initializeSharedPreferences();
@@ -201,21 +207,18 @@ class _PhoneFormState extends State<PhoneForm> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Center(
-            child: Text(
-                'Authentication failed please check your phone number and unique code.',
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 126, 124, 124))),
-          ),
-          backgroundColor: Colors.red,
+          content:
+              Text('Failed to loggin check your phone number and unique code.'),
           duration: Duration(seconds: 5),
         ),
       );
       // Handle errors or display appropriate messages
       print('Failed to log in. Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      print('Response body: ${response}');
+    }
+    }
+    else {
+      print('Error user object: ${responseAuthUser.body}');
     }
   }
 

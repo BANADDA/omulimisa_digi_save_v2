@@ -24,7 +24,7 @@ import 'meetings/end_cycle/endMeetingCycle.dart';
 import 'meetings/meetings_page.dart';
 
 class GroupLeader {
-  final int groupMemberId;
+  final String groupMemberId;
   final String leaderName;
   final String assignedPosition;
 
@@ -37,7 +37,7 @@ class GroupLeader {
 
 class GroupDashboard extends StatefulWidget {
   final groupName;
-  final groupId;
+  final String? groupId;
 
   const GroupDashboard({Key? key, this.groupName, this.groupId})
       : super(key: key);
@@ -49,12 +49,12 @@ class GroupDashboard extends StatefulWidget {
 class _GroupDashboardState extends State<GroupDashboard> {
   Uint8List? _bytesImage;
 
-  int? group_Id = 0;
+  String? group_Id;
 
-  Future<void> getGroupIdForFormId(int formId) async {
-    group_Id = await DatabaseHelper.instance.getGroupIdFromFormId(formId);
-    fetchMembersAndPositions(group_Id!);
+  Future<void> getGroupIdForFormId(String formId) async {
+    group_Id = (await DatabaseHelper.instance.getGroupIdFromFormId(formId));
     if (group_Id != null) {
+    fetchMembersAndPositions(group_Id!);
       print('The group ID associated with form $formId is $group_Id');
     } else {
       print('No group found for form $formId');
@@ -62,12 +62,12 @@ class _GroupDashboardState extends State<GroupDashboard> {
   }
 
   List<Map<String, dynamic>>? memberAndPositionData;
-  Future<void> fetchMemberAndPositionData(int groupId) async {
+  Future<void> fetchMemberAndPositionData(String groupId) async {
     String currentPositionName;
     memberAndPositionData =
         await DatabaseHelper.instance.getMemberAndPositionNames(groupId);
     final prefs = await SharedPreferences.getInstance();
-    final loggedInUserId = prefs.getInt('userId');
+    final loggedInUserId = prefs.getString('userId');
     print('Logged i n User: $loggedInUserId');
     final currentUserId =
         await DatabaseHelper.instance.getGroupUserId(groupId, loggedInUserId!);
@@ -99,13 +99,13 @@ class _GroupDashboardState extends State<GroupDashboard> {
   }
 
   Map<String, dynamic>? cycleScheduleInfo;
-  int? meetingId;
-  int? cycleId;
+  String? meetingId;
+  String? cycleId;
 
   bool? cycleStarted;
-  int? normalMeetingId;
+  String? normalMeetingId;
 
-  Future<int?> isCycleStarted(int groupId) async {
+  Future<String?> isCycleStarted(String groupId) async {
     final databaseHelper = DatabaseHelper.instance;
     final cycleStarted = await databaseHelper.isCycleStarted(groupId);
 
@@ -134,22 +134,22 @@ class _GroupDashboardState extends State<GroupDashboard> {
     bool isLoading = true;
 
     // Check if the cycle has started.
-    final int? cycleId = await isCycleStarted(widget.groupId);
+    final String? cycleId = await isCycleStarted(widget.groupId!);
 
     if (cycleId != null) {
       // Data loading is complete.
       isLoading = false;
 
-      if (cycleId > 0) {
+      if (cycleId != null) {
         // Cycle has started.
         // Navigate to the StartMeeting screen.
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => StartMeeting(
-              groupId: widget.groupId,
+              groupId: widget.groupId!,
               groupName: widget.groupName,
               meetingId:
-                  normalMeetingId ?? 0, // Provide a default value if it's null
+                  normalMeetingId ?? '', // Provide a default value if it's null
             ),
           ),
         );
@@ -210,7 +210,7 @@ class _GroupDashboardState extends State<GroupDashboard> {
 
   List<Map<String, dynamic>> memberData = [];
 
-  void fetchMembersAndPositions(int groupProfileId) async {
+  void fetchMembersAndPositions(String groupProfileId) async {
     memberData =
         await DatabaseHelper.instance.getMemberIdsForGroup(groupProfileId);
     print('Group members: $memberData');
@@ -219,7 +219,7 @@ class _GroupDashboardState extends State<GroupDashboard> {
     });
   }
 
-  Future<String> fetchMemberName(int groupMemberId) async {
+  Future<String> fetchMemberName(String groupMemberId) async {
     Map<String, dynamic> memberNameData =
         await DatabaseHelper.instance.getMemberName(groupMemberId);
     print('Member data; $memberNameData');
@@ -452,15 +452,17 @@ class _GroupDashboardState extends State<GroupDashboard> {
   double groupSavings = 0.0;
   double activeLoansDetails = 0.0;
 
+  double totalGroupSavings = 0;
+
   Future<void> fetchGroupAccounts() async {
     // Fetch Total Savings
-    groupSavings =
-        await DatabaseHelper.instance.getTotalGroupSavings(widget.groupId);
-    print('New Savings: UGX $groupSavings');
+    totalGroupSavings =
+    await DatabaseHelper.instance.getTotalGroupSavings(widget.groupId!);
+    print('New Savings: UGX $totalGroupSavings');
 
     // Fetch active loans
     activeLoansDetails = await DatabaseHelper.instance
-        .getTotalActiveLoanAmountForGroup(widget.groupId);
+        .getTotalActiveLoanAmountForGroup(widget.groupId!);
     print('Total Active Loan Amount: UGX $activeLoansDetails');
 
     // Update UI after fetching values
@@ -471,9 +473,10 @@ class _GroupDashboardState extends State<GroupDashboard> {
     // Function to get the user's name from SharedPreferences
     Future<String?> getUserName() async {
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('userId');
+      final userId = prefs.getString('userId');
       final firstName = prefs.getString('userFirstName');
       final lastName = prefs.getString('userLastName');
+      print('User name: $firstName $lastName');
       if (firstName != null && lastName != null) {
         return '$firstName $lastName';
       }
@@ -606,7 +609,7 @@ class _GroupDashboardState extends State<GroupDashboard> {
             child: Column(
               children: [
                 FinancialCard(
-                    header: 'Group Savings', formattedSavings: groupSavings),
+                    header: 'Group Savings', formattedSavings: totalGroupSavings),
                 const SizedBox(
                   height: 10,
                 ),
@@ -825,7 +828,7 @@ class _GroupDashboardState extends State<GroupDashboard> {
                       );
                     }
                   },
-                  groupId: widget.groupId, // Pass the groupId to CustomCard
+                  groupId: widget.groupId!, // Pass the groupId to CustomCard
                   groupName:
                       widget.groupName, // Pass the groupName to CustomCard
                 ),
@@ -926,96 +929,96 @@ class _GroupDashboardState extends State<GroupDashboard> {
                 const SizedBox(
                   height: 20,
                 ),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Padding(
-                      padding: const EdgeInsets.all(0),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 1, 67, 3),
-                              ),
-                              // ignore: prefer_const_constructors
-                              margin: const EdgeInsets.only(
-                                  top: 0, left: 0, right: 0),
-                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                              child: const Align(
-                                alignment: Alignment.center,
-                                child: Padding(
-                                  padding: EdgeInsets.all(20),
-                                  child: Text(
-                                    'Group Leaders',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: memberData.map((member) {
-                                  final memberId = member['member_id'];
-                                  print('Member Id: $memberId');
-                                  final position = member['position_name'];
+                // Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                //   Padding(
+                //       padding: const EdgeInsets.all(0),
+                //       child: Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: [
+                //             Container(
+                //               decoration: const BoxDecoration(
+                //                 color: Color.fromARGB(255, 1, 67, 3),
+                //               ),
+                //               // ignore: prefer_const_constructors
+                //               margin: const EdgeInsets.only(
+                //                   top: 0, left: 0, right: 0),
+                //               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                //               child: const Align(
+                //                 alignment: Alignment.center,
+                //                 child: Padding(
+                //                   padding: EdgeInsets.all(20),
+                //                   child: Text(
+                //                     'Group Leaders',
+                //                     style: TextStyle(
+                //                       fontWeight: FontWeight.bold,
+                //                       fontSize: 16,
+                //                       color: Colors.white,
+                //                     ),
+                //                   ),
+                //                 ),
+                //               ),
+                //             ),
+                //             const SizedBox(
+                //               height: 15,
+                //             ),
+                //             SingleChildScrollView(
+                //               child: Column(
+                //                 crossAxisAlignment: CrossAxisAlignment.start,
+                //                 children: memberData.map((member) {
+                //                   final memberId = member['member_id'];
+                //                   print('Member Id: $memberId');
+                //                   final position = member['position_name'];
 
-                                  return FutureBuilder<String>(
-                                    future: fetchMemberName(memberId),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return CircularProgressIndicator(); // Display a loading indicator while fetching data
-                                      } else if (snapshot.hasError) {
-                                        return Text(
-                                            'Error fetching name'); // Display an error message if fetching fails
-                                      } else {
-                                        final name = snapshot.data ??
-                                            ''; // Retrieve the fetched name from the snapshot
+                //                   return FutureBuilder<String>(
+                //                     future: fetchMemberName(memberId),
+                //                     builder: (context, snapshot) {
+                //                       if (snapshot.connectionState ==
+                //                           ConnectionState.waiting) {
+                //                         return CircularProgressIndicator(); // Display a loading indicator while fetching data
+                //                       } else if (snapshot.hasError) {
+                //                         return Text(
+                //                             'Error fetching name'); // Display an error message if fetching fails
+                //                       } else {
+                //                         final name = snapshot.data ??
+                //                             ''; // Retrieve the fetched name from the snapshot
 
-                                        return Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 8.0, horizontal: 16.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                name.isNotEmpty
-                                                    ? name
-                                                    : 'Name not available',
-                                                style: TextStyle(
-                                                    fontSize: 18.0,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              SizedBox(height: 4.0),
-                                              Text(
-                                                'Position: $position',
-                                                style:
-                                                    TextStyle(fontSize: 16.0),
-                                              ),
-                                              Divider(), // Adding a divider between entries
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                    },
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ]))
-                ]),
-                const SizedBox(
-                  height: 10,
-                ),
+                //                         return Padding(
+                //                           padding: EdgeInsets.symmetric(
+                //                               vertical: 8.0, horizontal: 16.0),
+                //                           child: Column(
+                //                             crossAxisAlignment:
+                //                                 CrossAxisAlignment.start,
+                //                             children: [
+                //                               Text(
+                //                                 name.isNotEmpty
+                //                                     ? name
+                //                                     : 'Name not available',
+                //                                 style: TextStyle(
+                //                                     fontSize: 18.0,
+                //                                     fontWeight:
+                //                                         FontWeight.bold),
+                //                               ),
+                //                               SizedBox(height: 4.0),
+                //                               Text(
+                //                                 'Position: $position',
+                //                                 style:
+                //                                     TextStyle(fontSize: 16.0),
+                //                               ),
+                //                               Divider(), // Adding a divider between entries
+                //                             ],
+                //                           ),
+                //                         );
+                //                       }
+                //                     },
+                //                   );
+                //                 }).toList(),
+                //               ),
+                //             ),
+                //           ]))
+                // ]),
+                // const SizedBox(
+                //   height: 10,
+                // ),
                 const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1154,7 +1157,7 @@ class _GroupDashboardState extends State<GroupDashboard> {
                           children: [
                             FutureBuilder<bool>(
                               future: DatabaseHelper.instance
-                                  .getGroupCycleStatus(widget.groupId),
+                                  .getGroupCycleStatus(widget.groupId!),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
@@ -1232,7 +1235,7 @@ class _GroupDashboardState extends State<GroupDashboard> {
                             FutureBuilder<bool>(
                               future: DatabaseHelper.instance
                                   .getGroupCycleStatus(widget
-                                      .groupId), // Replace 'groupId' with the actual group ID
+                                      .groupId!), // Replace 'groupId' with the actual group ID
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
@@ -1323,10 +1326,10 @@ class _GroupDashboardState extends State<GroupDashboard> {
     }
   }
 
-  Future<void> fetchData(int groupId) async {
+  Future<void> fetchData(String groupId) async {
     try {
       bool cycle =
-          await DatabaseHelper.instance.getGroupCycleStatus(widget.groupId);
+          await DatabaseHelper.instance.getGroupCycleStatus(widget.groupId!);
       print('Cycle started boolean: $cycle');
     } catch (e) {
       // Handle any potential errors
@@ -1339,12 +1342,12 @@ class _GroupDashboardState extends State<GroupDashboard> {
   @override
   void initState() {
     super.initState();
-    getGroupIdForFormId(widget.groupId);
+    getGroupIdForFormId(widget.groupId!);
     fetchGroupAccounts();
     getleaders();
-    isCycleStarted(widget.groupId);
-    fetchData(widget.groupId);
-    // fetchMemberAndPositionData(widget.groupId);
+    isCycleStarted(widget.groupId!);
+    fetchData(widget.groupId!);
+    // fetchMemberAndPositionData(widget.groupId!);
     // getImageForMember();
   }
 
@@ -1352,7 +1355,7 @@ class _GroupDashboardState extends State<GroupDashboard> {
     print('Here');
     try {
       print('Group id: ${widget.groupId}');
-      final data = await DatabaseHelper.instance.groupProfileId(widget.groupId);
+      final data = await DatabaseHelper.instance.groupProfileId(widget.groupId!);
       print('Group form id: $data');
     } catch (e) {
       print('Error $e');

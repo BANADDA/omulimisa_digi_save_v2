@@ -72,7 +72,7 @@ class _StartScreenState extends State<StartScreen> {
       setState(() {
         groupProfileSaved = false;
         constitutionSaved = false;
-        scheduleSaved = false;
+        // scheduleSaved = false;
         membersSaved = false;
         officersSaved = false;
         getUserData();

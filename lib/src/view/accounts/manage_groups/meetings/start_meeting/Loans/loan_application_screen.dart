@@ -19,9 +19,9 @@ class MemberLoan {
 }
 
 class LoanApplicationScreen extends StatefulWidget {
-  final int groupId;
-  final int cycleId;
-  final int meetingId;
+  final String groupId;
+  final String cycleId;
+  final String meetingId;
   final List<Map<String, dynamic>> groupMembers;
   final Function(List<Map<String, dynamic>>) onRecentActivityUpdated;
 
@@ -49,7 +49,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
 
   double totalGroupSavings = 0;
 
-  Future<void> fetchInterestRate(int groupId) async {
+  Future<void> fetchInterestRate(String groupId) async {
     try {
       InterestRate = await DatabaseHelper.instance.getInterestRate(groupId);
       totalGroupSavings =
@@ -196,7 +196,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
                             // Check if the selected member already has a loan
                             bool hasLoans = await DatabaseHelper.instance
                                 .doesMemberHaveActiveLoan(
-                                    widget.groupId, selectedMemberId.toInt());
+                                    widget.groupId, selectedMemberId!);
                             print('Has loan? $hasLoans');
                             print('Group Id: ${widget.groupId}');
 
@@ -312,7 +312,7 @@ class _LoanApplicationScreenState extends State<LoanApplicationScreen> {
 
                                 final prefs =
                                     await SharedPreferences.getInstance();
-                                final loggedInUserId = prefs.getInt('userId');
+                                final loggedInUserId = prefs.getString('userId');
                                 final deductionData = {
                                   'group_id': widget.groupId,
                                   'logged_in_user_id': loggedInUserId,

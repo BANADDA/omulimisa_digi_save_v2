@@ -5,7 +5,7 @@ import '../../../../widgets/alert.dart';
 import '../../group_start.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  final int? groupId;
+  final String? groupId;
 
   const ScheduleScreen({
     super.key,
@@ -419,7 +419,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: () async {
-                        final int groupId = widget.groupId ?? 0;
+                        final String groupId = widget.groupId ?? '';
                         try {
                           if (validateForm()) {
                             // Calculate meeting details
@@ -451,7 +451,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 .insertScheduleData(scheduleData);
 
                             setState(() {
-                              scheduleSaved = true;
+                              // scheduleSaved = true;
                             });
                             // print(
                             //     'Cycle SChedule data for group $groupId submitted successfully');

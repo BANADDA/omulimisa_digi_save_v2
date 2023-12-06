@@ -10,19 +10,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:omulimisa_digi_save_v2/database/constants.dart';
+import 'package:omulimisa_digi_save_v2/database/localStorage.dart';
+import 'package:omulimisa_digi_save_v2/database/userData.dart';
+import 'package:omulimisa_digi_save_v2/src/view/authentication/locationModel.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:http/http.dart' as http;
 
-import '../../../../../../database/localStorage.dart';
-import '../../../../../../database/userData.dart';
 import 'MemberProfilesScreen.dart';
 
 class NewMemberScreen extends StatefulWidget {
-  final int? groupId;
-
+  final String? groupId;
   const NewMemberScreen({super.key, this.groupId});
+
   @override
-  _NewMemberScreenState createState() => _NewMemberScreenState();
+  State<NewMemberScreen> createState() => _NewMemberScreenState();
 }
 
 class _NewMemberScreenState extends State<NewMemberScreen> {
@@ -94,16 +95,16 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
+    if (pickedFile != null) {
+      setState(() {
         _image = File(pickedFile.path);
-        List<int> imageBytes = _image!.readAsBytesSync();
-        base64Image = base64Encode(imageBytes);
-        print(base64Image);
-      } else {
-        print('No image selected.');
-      }
-    });
+      });
+      List<int> imageBytes = await _image!.readAsBytes();
+      base64Image = base64Encode(imageBytes);
+      print('Image bytes: $base64Image');
+    } else {
+      print('No image selected.');
+    }
   }
 
   String generateShortCode() {
@@ -119,7 +120,7 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
     return code.toString();
   }
 
-  @override
+  // @override
   // void dispose() {
   //   fnameController.dispose();
   //   lnameController.dispose();
@@ -163,10 +164,11 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
     };
 
     if (_formKey.currentState!.validate()) {
-      print(user);
+      // print(user);
       final DatabaseHelper dbHelper = DatabaseHelper.instance;
-      final int userId = await dbHelper.addUser(user);
-
+      final String userId = await dbHelper.addUser(user);
+      print('New User: $user');
+      print('Data: $user');
       final database = await openDatabase('app_database.db');
       final userEndpoint = {
         'users': {
@@ -182,32 +184,44 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
             final sendEndpoint = endpoints!['sendEndpoint'];
             final retrieveEndpoint = endpoints['retrieveEndpoint'];
             final unsyncedData = await database.rawQuery(
-              'SELECT * FROM $tableName WHERE sync_flag = ?',
-              [0],
+              'SELECT * FROM $tableName',
             );
             for (final data in unsyncedData) {
               final dataToSend = Map.from(data);
+              // dataToSend.remove('id');
               try {
                 final response = await http.post(
                   Uri.parse(sendEndpoint!),
                   body: json.encode(dataToSend),
                   headers: {'Content-Type': 'application/json'},
                 );
-                // print('Response: $response');
+                print('Response: $response');
                 // print('Data: ${json.encode(dataToSend)}');
+                final Map<String, dynamic> responseData =
+                    json.decode(response.body);
 
                 if (response.statusCode == 200) {
                   // Data uploaded successfully, update sync_flag to 1 in local SQLite
                   await database.rawUpdate(
                     'UPDATE $tableName SET sync_flag = ? WHERE id = ?',
-                    [1, data['id']],
+                    [1, responseData['id']],
                   );
+                  print(
+                      'Sync flag updated for record with ID: ${responseData['id']}');
                   print('Success');
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                          'Success your account has been created successfully'),
+                      duration: Duration(seconds: 5),
+                    ),
+                  );
                 } else {
-                  print(response.body);
+                  print('Error creating user ${response.body}');
                 }
               } catch (e) {
-                // print('Error uploading data $data for table $tableName: $e');
+                print('Error uploading data $data for table $tableName: $e');
               }
             }
 
@@ -220,9 +234,8 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
               // Step 4: Clear local SQLite database for this table
               await database.rawDelete('DELETE FROM $tableName');
 
-              // Reset the auto-increment counter for the primary key column
-              await database.rawDelete(
-                  'DELETE FROM sqlite_sequence WHERE name = ?', ['$tableName']);
+              // await database.rawDelete(
+              //     'DELETE FROM sqlite_sequence WHERE name = ?', ['$tableName']);
               final Map<String, dynamic> responseData =
                   json.decode(serverDataResponse.body);
 
@@ -234,12 +247,17 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
                   if (tableData.isNotEmpty) {
                     print('Here');
                     for (final data in tableData) {
-                      final columns = data.keys.join(', ');
-                      final values =
-                          List.generate(data.length, (index) => '?').join(', ');
+                      final columns = data.keys.join(
+                          ', '); // Create a comma-separated list of column names
+                      final values = List.generate(data.length, (index) => '?')
+                          .join(', '); // Create placeholders for values
+                      // Explicitly adding 'id' as the first column in the INSERT query
                       final query =
-                          'INSERT INTO $key ($columns) VALUES ($values)';
-                      final args = data.values.toList();
+                          'INSERT INTO $key (id, $columns) VALUES (?, $values)';
+                      final args = [
+                        data['id'],
+                        ...data.values.toList()
+                      ]; // Include 'id' in the args list
 
                       await database.rawInsert(query, args);
                     }
@@ -247,19 +265,6 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
                     // Step 4: Update the sync flag to 1 for all rows in that table
                     await database
                         .rawUpdate('UPDATE $tableName SET sync_flag = 1');
-
-                    // Retrieve and print all data from the table
-                    // Retrieve and print all data from the table excluding the "image" column
-                    final allRows =
-                        await database.rawQuery('SELECT * FROM $tableName');
-                    print(
-                        'All data in table $tableName (excluding "image" column):');
-                    for (final row in allRows) {
-                      // Exclude the "image" column
-                      final filteredRow = Map.from(row)..remove('image');
-                      print(filteredRow);
-                    }
-
                     continue;
                   } else {
                     print('Server is empty');
@@ -274,6 +279,18 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
       } else {
         print('No user created');
       }
+
+      // synchronizeData();
+
+      // final ConnectivityResult connectivityResult =
+      //     await connectivity.checkConnectivity();
+
+      // if (connectivityResult == ConnectivityResult.mobile ||
+      //     connectivityResult == ConnectivityResult.wifi) {
+      //   // The device has internet.
+      // } else {
+      //   print('No internet connection, data not saved');
+      // }
 
       // Create a FlutterLocalNotificationsPlugin instance
       FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -291,11 +308,13 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
       // Create a notification
       const AndroidNotificationDetails androidPlatformChannelSpecifics =
           AndroidNotificationDetails(
-        'your_channel_id', // Replace with your own channel ID
-        'New Member Notification',
-        importance: Importance.defaultImportance,
-        priority: Priority.defaultPriority,
-      );
+              'your_channel_id', 'New Member Notification',
+              importance: Importance.max,
+              priority: Priority.max,
+              fullScreenIntent: true,
+              enableVibration: true,
+              channelShowBadge: true,
+              playSound: true);
       const NotificationDetails platformChannelSpecifics =
           NotificationDetails(android: androidPlatformChannelSpecifics);
 
@@ -320,19 +339,89 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
         _isLoading = false;
       });
 
-      if (userId != -1) {
-        print('User data Saved');
+      if (userId != null) {
         dbHelper.getTodo();
+        print('User data Saved');
       } else {
         print('There was an error');
       }
-
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
+       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => MemberProfilesScreen(
             groupId: widget
                 .groupId), // Replace 'NextScreen()' with your actual next screen
       ));
     }
+    // } catch (e) {
+    //   print('Error creating user: $e');
+    //   final errorMessage = e.toString();
+    //   String dynamicMessage = 'An error occurred while creating the user.';
+
+    //   final errorSections = errorMessage.split('.');
+    //   if (errorSections.length > 1) {
+    //     final errorType = errorSections[1].trim();
+    //     dynamicMessage = 'The $errorType is already in use.';
+    //   }
+
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text(dynamicMessage),
+    //       duration: Duration(seconds: 5),
+    //     ),
+    //   );
+    // }
+  }
+
+  @override
+  void initState() {
+    fetchData();
+    super.initState();
+  }
+
+  late Location selectedDistrict = Location(id: '', name: '');
+  late Location selectedSubcounty = Location(id: '', name: '');
+  late Location selectedVillage = Location(id: '', name: '');
+
+  // late Location selectedDistrict;
+  // late Location selectedSubcounty;
+  // late Location selectedVillage;
+
+  List<Location> districts = [];
+  List<Location> subcounties = [];
+  List<Location> villages = [];
+
+  DatabaseHelper DBHelper = DatabaseHelper.instance;
+
+// Fetch data from SQLite
+  void fetchData() async {
+    List<Location> fetchedDistricts = await DBHelper.fetchDistricts();
+    List<Location> fetchedSubcounties = await DBHelper.fetchSubcounties();
+    List<Location> fetchedVillages = await DBHelper.fetchVillages();
+
+    setState(() {
+      // Initialize with an empty Location object
+      districts = [Location(id: '', name: '')] +
+          fetchedDistricts
+              .map((district) => Location(id: district.id, name: district.name))
+              .toList();
+      subcounties = [Location(id: '', name: '')] +
+          fetchedSubcounties
+              .map((subcounty) =>
+                  Location(id: subcounty.id, name: subcounty.name))
+              .toList();
+      villages = [Location(id: '', name: '')] +
+          fetchedVillages
+              .map((village) => Location(id: village.id, name: village.name))
+              .toList();
+
+      // Set default values or initialize dropdown value variables here if needed
+      selectedDistrict =
+          districts.isNotEmpty ? districts.first : Location(id: '', name: '');
+      selectedSubcounty = subcounties.isNotEmpty
+          ? subcounties.first
+          : Location(id: '', name: '');
+      selectedVillage =
+          villages.isNotEmpty ? villages.first : Location(id: '', name: '');
+    });
   }
 
   @override
@@ -804,11 +893,12 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 20),
+
                               const SizedBox(height: 20),
                               const Row(
                                 children: [
-                                  Text('District',
+                                  Text('Select District',
                                       style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.black,
@@ -825,32 +915,35 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
                                   ),
                                 ],
                               ),
-                              TextFormField(
-                                style: const TextStyle(color: Colors.black),
-                                controller:
-                                    _districtController, // Add a controller for the district field
-                                decoration: const InputDecoration(
-                                  hintText: 'Enter your district',
-                                  hintStyle: TextStyle(
-                                      color: Colors.black, fontSize: 12),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your district';
-                                  }
-                                  return null;
+                              // District Dropdown
+                              DropdownButtonFormField<Location>(
+                                value: selectedDistrict,
+                                hint: Text('Select District'),
+                                onChanged: (Location? newValue) {
+                                  setState(() {
+                                    selectedDistrict = newValue!;
+                                    _districtController.text = newValue
+                                        .id; // Set selected value to controller
+                                  });
                                 },
+                                validator: (value) {
+                                  if (value == null || value.id.isEmpty) {
+                                    return 'Please select a district';
+                                  }
+                                  return null; // Return null if the dropdown value is valid
+                                },
+                                items: districts.map((Location district) {
+                                  return DropdownMenuItem<Location>(
+                                    value: district,
+                                    child: Text(district.name),
+                                  );
+                                }).toList(),
                               ),
                               const SizedBox(height: 20),
+                              // Subcounty Dropdown
                               const Row(
                                 children: [
-                                  Text('Sub-County',
+                                  Text('Select Subcounty',
                                       style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.black,
@@ -867,32 +960,33 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
                                   ),
                                 ],
                               ),
-                              TextFormField(
-                                style: const TextStyle(color: Colors.black),
-                                controller:
-                                    _subCountyController, // Add a controller for the sub-county field
-                                decoration: const InputDecoration(
-                                  hintText: 'Enter your sub-county',
-                                  hintStyle: TextStyle(
-                                      color: Colors.black, fontSize: 12),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your sub-county';
-                                  }
-                                  return null;
+                              DropdownButtonFormField<Location>(
+                                value: selectedSubcounty,
+                                hint: Text('Select Subcounty'),
+                                onChanged: (Location? newValue) {
+                                  setState(() {
+                                    selectedSubcounty = newValue!;
+                                    _subCountyController.text = newValue
+                                        .id; // Set selected value to controller
+                                  });
                                 },
+                                validator: (value) {
+                                  if (value == null || value.id.isEmpty) {
+                                    return 'Please select a subcounty';
+                                  }
+                                  return null; // Return null if the dropdown value is valid
+                                },
+                                items: subcounties.map((Location subcounty) {
+                                  return DropdownMenuItem<Location>(
+                                    value: subcounty,
+                                    child: Text(subcounty.name),
+                                  );
+                                }).toList(),
                               ),
                               const SizedBox(height: 20),
                               const Row(
                                 children: [
-                                  Text('Village',
+                                  Text('Select Village',
                                       style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.black,
@@ -909,27 +1003,28 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
                                   ),
                                 ],
                               ),
-                              TextFormField(
-                                style: const TextStyle(color: Colors.black),
-                                controller:
-                                    _villageController, // Add a controller for the village field
-                                decoration: const InputDecoration(
-                                  hintText: 'Enter your village',
-                                  hintStyle: TextStyle(
-                                      color: Colors.black, fontSize: 12),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.green),
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your village';
-                                  }
-                                  return null;
+                              DropdownButtonFormField<Location>(
+                                value: selectedVillage,
+                                hint: Text('Select Village'),
+                                onChanged: (Location? newValue) {
+                                  setState(() {
+                                    selectedVillage = newValue!;
+                                    _villageController.text = newValue
+                                        .id; // Set selected value to controller
+                                  });
                                 },
+                                validator: (value) {
+                                  if (value == null || value.id.isEmpty) {
+                                    return 'Please select a village';
+                                  }
+                                  return null; // Return null if the dropdown value is valid
+                                },
+                                items: villages.map((Location village) {
+                                  return DropdownMenuItem<Location>(
+                                    value: village,
+                                    child: Text(village.name),
+                                  );
+                                }).toList(),
                               ),
                               const SizedBox(height: 20),
                               const SizedBox(
@@ -957,14 +1052,10 @@ class _NewMemberScreenState extends State<NewMemberScreen> {
                               TextFormField(
                                 style: const TextStyle(color: Colors.black),
                                 controller: _dependentsController,
-                                keyboardType: TextInputType
-                                    .number, // Set the keyboard type to number
                                 decoration: const InputDecoration(
                                   hintText: 'Enter the number of dependents',
                                   hintStyle: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                  ),
+                                      color: Colors.black, fontSize: 12),
                                   enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(color: Colors.green),
                                   ),

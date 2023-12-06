@@ -17,9 +17,9 @@ class MemberSocialFund {
 }
 
 class SocialFundApplication extends StatefulWidget {
-  final int groupId;
-  final int cycleId;
-  final int meetingId;
+  final String groupId;
+  final String cycleId;
+  final String meetingId;
   final List<Map<String, dynamic>> groupMembers;
   final Function(List<Map<String, dynamic>>) onRecentActivityUpdated;
 
@@ -270,9 +270,9 @@ class _SocialFundApplicationState extends State<SocialFundApplication> {
 
   // Function to check for an existing loan application in the database
   Future<Map<String, dynamic>?> checkExistingSocialApplication(
-      int groupId,
-      int cycleId,
-      int meetingId,
+      String groupId,
+      String cycleId,
+      String meetingId,
       String memberId,
       DateTime applicationDate) async {
     final DatabaseHelper dbHelper = DatabaseHelper.instance;
