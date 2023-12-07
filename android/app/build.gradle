@@ -62,8 +62,9 @@ android {
         release {
             keyAlias "upload"
             keyPassword "digisave2023"
-            storeFile file('/Users/mac/Desktop/github/digi_save_repo/digisave_good.jks')
             storePassword 'digisave2023'
+            storeFile file('/Users/mac/Desktop/github/digi_save_repo/digisave_good.jks')
+
         }
     }
 
